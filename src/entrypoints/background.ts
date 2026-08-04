@@ -58,16 +58,16 @@ const getProfilesFromStorage = async (): Promise<Profile[]> => {
     const parsed = JSON.parse(raw);
     return parsed?.state?.profiles ?? [];
   } catch (err) {
-    console.error("[ModHeader Next] Failed to parse persisted state:", err);
+    console.error("[Headra] Failed to parse persisted state:", err);
     return [];
   }
 };
 
 const syncAllRules = async () => {
-  console.log("[ModHeader Next] Syncing DNR rules...");
+  console.log("[Headra] Syncing DNR rules...");
   try {
     const profiles = await getProfilesFromStorage();
-    console.log(`[ModHeader Next] Found:`, profiles);
+    console.log(`[Headra] Found:`, profiles);
 
     const currentRuleIds = (await browser.declarativeNetRequest.getDynamicRules()).map(
       (rule) => rule.id,
@@ -81,14 +81,14 @@ const syncAllRules = async () => {
           .map((header) => headerToRule(profile, header)),
       );
 
-    console.log(`[ModHeader Next] Syncing...`, newRules);
+    console.log(`[Headra] Syncing...`, newRules);
 
     await browser.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: currentRuleIds,
       addRules: newRules,
     });
   } catch (err) {
-    console.error("[ModHeader Next] Failed to sync DNR rules:", err);
+    console.error("[Headra] Failed to sync DNR rules:", err);
   }
 };
 
@@ -122,7 +122,7 @@ export default defineBackground(() => {
 
   // keep rules in sync with whatever the UI writes to storage
   browser.storage.onChanged.addListener((changes, areaName) => {
-    console.log("[ModHeader Next] Storage changed:", changes, areaName);
+    console.log("[Headra] Storage changed:", changes, areaName);
     if (areaName !== "local") return;
     if (!(STORAGE_KEY in changes)) return;
     debouncedSyncAllRules();

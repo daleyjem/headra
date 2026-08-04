@@ -1,3 +1,3 @@
-# ModHeader Next
+# Headra
 
-Replacement of popular ModHeader browser extension.
+Cross-browser request and response header modification extension/add-on.

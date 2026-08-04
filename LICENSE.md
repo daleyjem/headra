@@ -1,9 +1,9 @@
-# ModHeader Next Source-Available License
+# Headra Source-Available License
 
 Version 1.0
 
 **Copyright (c) 2026 Jeremy Daley ("Licensor")**
-Repository: https://github.com/daleyjem/modheader-next
+Repository: https://github.com/daleyjem/headra
 
 ## Acceptance
 
@@ -50,7 +50,7 @@ If you distribute a Modified Version to anyone other than yourself — including
 internal distribution within an organization — you must:
 
 - Retain a visible, unmodified credit reading **"Created by daleyjem"**,
-  linking to the original repository (`https://github.com/daleyjem/modheader-next`),
+  linking to the original repository (`https://github.com/daleyjem/headra`),
   in the extension's global UI (e.g., an About, Settings, or Help screen)
   where a user would reasonably see it;
 - Not present the Modified Version in a way that implies the Licensor
@@ -64,7 +64,7 @@ by the Licensor with the Software.
 
 ## 5. No Other Rights
 
-This license does not grant you any trademark rights in "ModHeader Next" or
+This license does not grant you any trademark rights in "Headra" or
 any Licensor branding, beyond what's needed to comply with Section 3.
 
 ## 6. Termination

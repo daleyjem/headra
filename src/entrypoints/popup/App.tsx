@@ -18,7 +18,7 @@ function App() {
       <header>
         <h1>
           <HeaderIcon />
-          ModHeader&nbsp;<em>Next</em>
+          Headra
         </h1>
         <div
           className="error-alert"

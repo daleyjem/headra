@@ -11,7 +11,7 @@ export default defineConfig({
   manifest: {
     version: "1.0.0",
     description: "Modify HTTP request and response headers.",
-    name: "ModHeader Next",
+    name: "Headra",
     permissions: ["storage", "declarativeNetRequest"],
     host_permissions: ["<all_urls>"],
   },

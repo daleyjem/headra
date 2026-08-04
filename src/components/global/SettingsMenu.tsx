@@ -3,6 +3,7 @@ import { useAppStore } from "@/store/useAppStore";
 import CogIcon from "@/assets/icons/cog-icon.svg?react";
 import DownloadIcon from "@/assets/icons/download-icon.svg?react";
 import ImportIcon from "@/assets/icons/import-icon.svg?react";
+import GithubIcon from "@/assets/icons/github-icon.svg?react";
 import "./settings.css";
 
 export const SettingsMenu = () => {
@@ -37,16 +38,20 @@ export const SettingsMenu = () => {
         <CogIcon />
       </button>
       <menu popover="auto" id="settings-dropdown">
-        <a onClick={onImportClick}>
+        <a href="#" onClick={onImportClick}>
           <ImportIcon />
           Import Profiles
         </a>
         <a
           href={`data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(profiles))}`}
-          download="modheader-profiles.json"
+          download="headra-profiles.json"
         >
           <DownloadIcon />
           Download Profiles
+        </a>
+        <a href="https://github.com/daleyjem/headra" onClick={onImportClick}>
+          <GithubIcon />
+          Github Source
         </a>
         <input
           ref={fileInputRef}
