@@ -2,7 +2,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { SettingsMenu } from "@/components/global/SettingsMenu";
 import { Profiles } from "@/components/profiles/Profiles";
 import { Headers } from "@/components/headers/Headers";
-import HeaderIcon from "@/assets/icons/header-icon.svg?react";
+import AppIcon from "@/assets/icons/app-icon.svg?react";
 import "./app.css";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
     <>
       <header>
         <h1>
-          <HeaderIcon />
+          <AppIcon />
           Headra
         </h1>
         <div

@@ -49,7 +49,10 @@ export const SettingsMenu = () => {
           <DownloadIcon />
           Download Profiles
         </a>
-        <a href="https://github.com/daleyjem/headra" onClick={onImportClick}>
+        <a
+          href="#"
+          onClick={() => browser.tabs.create({ url: "https://github.com/daleyjem/headra" })}
+        >
           <GithubIcon />
           Github Source
         </a>
