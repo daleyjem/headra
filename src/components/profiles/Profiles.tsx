@@ -1,15 +1,17 @@
 import { useEffect, useRef } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
-import PlusIcon from "@/assets/icons/plus-icon.svg?react";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
 import { ProfileItem } from "./ProfileItem";
+import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
+import DuplicateIcon from "@/assets/icons/duplicate-icon.svg?react";
+import PlusIcon from "@/assets/icons/plus-icon.svg?react";
 import "./profiles.css";
 
 export const Profiles = () => {
   const profiles = useAppStore((state) => state.profiles);
   const addProfile = useAppStore((state) => state.addProfile);
+  const duplicateProfile = useAppStore((state) => state.duplicateProfile);
   const removeProfile = useAppStore((state) => state.removeProfile);
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
 
@@ -36,6 +38,15 @@ export const Profiles = () => {
     }
   };
 
+  const handleDuplicate = () => {
+    if (selectedProfileId !== undefined) {
+      const profileToDuplicate = profiles.find((profile) => profile.id === selectedProfileId);
+      if (profileToDuplicate) {
+        duplicateProfile(profileToDuplicate.id);
+      }
+    }
+  };
+
   return (
     <div className="profiles">
       <h2>Profiles</h2>
@@ -59,10 +70,16 @@ export const Profiles = () => {
       <ButtonsContainer
         buttons={[
           {
-            label: "Remove",
+            label: "",
             onClick: handleRemove,
             disabled: selectedProfileId === undefined,
             icon: TrashcanIcon,
+          },
+          {
+            label: "",
+            onClick: handleDuplicate,
+            disabled: selectedProfileId === undefined,
+            icon: DuplicateIcon,
           },
           {
             label: "Add",

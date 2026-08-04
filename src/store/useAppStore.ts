@@ -29,6 +29,7 @@ type AppState = {
   setSelectedHeader: (header: Header | null) => void;
   setErrorAlert: (errorAlert: AppState["errorAlert"]) => void;
   addProfile: () => void;
+  duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
   updateProfile: (profile: Profile, updateSelected?: boolean) => void;
   resetProfiles: (profiles: Profile[]) => void;
@@ -68,6 +69,21 @@ const updateProfile = (updateState: Updater, getState: Getter) => (updatedProfil
       profile.id === updatedProfile.id ? updatedProfile : profile,
     ),
   });
+};
+
+const duplicateProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
+  const profiles = getState().profiles;
+  const profileToDuplicate = profiles.find((profile) => profile.id === profileId);
+  if (!profileToDuplicate) return;
+
+  const newId = profiles.length === 0 ? 0 : profiles[profiles.length - 1].id + 1;
+  const duplicatedProfile: Profile = {
+    ...profileToDuplicate,
+    enabled: false,
+    id: newId,
+    name: `${profileToDuplicate.name} (Copy)`,
+  };
+  updateState({ profiles: [...profiles, duplicatedProfile], selectedProfileId: newId });
 };
 
 const removeProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
@@ -112,6 +128,7 @@ export const useAppStore = create<AppState>()(
       setSelectedHeader: setSelectedHeader(set),
       setErrorAlert: setErrorAlert(set, get),
       addProfile: addProfile(set, get),
+      duplicateProfile: duplicateProfile(set, get),
       updateProfile: updateProfile(set, get),
       removeProfile: removeProfile(set, get),
       resetProfiles: resetProfiles(set),
