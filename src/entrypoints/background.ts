@@ -87,6 +87,28 @@ const syncAllRules = async () => {
       removeRuleIds: currentRuleIds,
       addRules: newRules,
     });
+
+    if (newRules.length > 0) {
+      browser.action.setIcon({
+        path: {
+          16: "icon/16.png",
+          32: "icon/32.png",
+          48: "icon/48.png",
+          96: "icon/96.png",
+          128: "icon/128.png",
+        },
+      });
+    } else {
+      browser.action.setIcon({
+        path: {
+          16: "icon/16-inactive.png",
+          32: "icon/32-inactive.png",
+          48: "icon/48-inactive.png",
+          96: "icon/96-inactive.png",
+          128: "icon/128-inactive.png",
+        },
+      });
+    }
   } catch (err) {
     console.error("[Headra] Failed to sync DNR rules:", err);
   }

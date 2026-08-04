@@ -3,6 +3,7 @@ import svgr from "vite-plugin-svgr";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
+  manifestVersion: 3,
   srcDir: "src",
   modules: ["@wxt-dev/module-react"],
   vite: () => ({
