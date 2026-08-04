@@ -1,0 +1,40 @@
+{
+  "name": "wxt-react-starter",
+  "version": "0.0.0",
+  "private": true,
+  "description": "manifest.json description",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:unpacked": "cross-env NO_BROWSER=true wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "lint": "oxlint",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare",
+    "types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "classnames": "^2.5.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "use-debounce": "^10.1.1",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@wxt-dev/module-react": "^1.1.5",
+    "cross-env": "^10.1.0",
+    "oxfmt": "^0.61.0",
+    "oxlint": "^1.76.0",
+    "typescript": "^5.9.3",
+    "vite-plugin-svgr": "^5.2.0",
+    "web-ext": "^10.5.0",
+    "wxt": "^0.20.27"
+  }
+}

@@ -1,0 +1,60 @@
+.settings-menu {
+  .btn-settings {
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      svg {
+        fill: var(--text-color);
+      }
+    }
+
+    svg {
+      fill: var(--text-color-dim);
+      width: 16px;
+    }
+  }
+}
+
+.btn-settings {
+  display: flex;
+  anchor-name: --settings-button;
+}
+
+#settings-dropdown {
+  inset: auto;
+  top: anchor(bottom);
+  right: anchor(right);
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color-dark);
+  border: solid 2px var(--bg-color-darker);
+  position-anchor: --settings-button;
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-decoration: none;
+    color: var(--text-color-dim);
+    font-size: 0.8em;
+    border-bottom: solid 1px var(--text-color-dimmer);
+
+    &:hover {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+      margin-right: var(--spacing-sm);
+      fill: var(--text-color-dim);
+    }
+  }
+}

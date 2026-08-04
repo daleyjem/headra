@@ -1,0 +1,8 @@
+.no-items {
+  color: var(--text-color-dim);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  text-align: center;
+  flex: 1;
+}

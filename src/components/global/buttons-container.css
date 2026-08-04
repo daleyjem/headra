@@ -1,0 +1,44 @@
+.buttons-container {
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0px -5px 20px rgba(0, 0, 0, 0.2);
+
+  button {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: none;
+    border-top: solid 2px var(--border-dim);
+    border-right: solid 1px var(--border-dim);
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--text-color-dim);
+    font-size: 0.9em;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    &:last-child {
+      border-right: none;
+    }
+
+    &:disabled {
+      cursor: default;
+      color: var(--text-color-dimmer);
+
+      svg {
+        fill: var(--text-color-dimmer);
+      }
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+      margin-left: 8px;
+      fill: var(--text-color-dim);
+    }
+  }
+}

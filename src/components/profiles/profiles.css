@@ -1,0 +1,102 @@
+.profiles {
+  display: flex;
+  flex-direction: column;
+  width: 30vw;
+  height: 100%;
+  border-right: solid 2px var(--border-dim);
+  overflow: auto;
+}
+
+.profile-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.profile-item {
+  display: flex;
+  position: relative;
+  align-items: center;
+  cursor: pointer;
+  padding: 1em 0.5em 1em 2em;
+  background-color: transparent;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: var(--bg-color-dark);
+
+    .edit-profile {
+      transform: translateY(-50%) translateX(100%);
+    }
+  }
+
+  &.enabled {
+    input[type="text"][inert] {
+      color: var(--text-color);
+    }
+  }
+
+  &.selected {
+    background-color: var(--action-active-color);
+
+    input[type="text"][inert] {
+      color: white;
+    }
+
+    input[type="checkbox"] {
+      border: solid 1px transparent;
+    }
+
+    .edit-profile svg {
+      fill: white;
+    }
+  }
+
+  &.editing {
+    .edit-profile {
+      transform: translateY(-50%) translateX(0%);
+    }
+  }
+
+  input[type="text"] {
+    color: white;
+    flex: 1;
+    font-weight: 400;
+    padding: 0;
+
+    &[inert] {
+      cursor: inherit;
+      border: solid 1px transparent;
+      color: var(--text-color-dimmer);
+      text-overflow: ellipsis;
+    }
+  }
+
+  p {
+    font-size: 0.75em;
+    font-weight: 100;
+    color: var(--text-color-dim);
+  }
+}
+
+.edit-profile {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  transform: translateY(-50%) translateX(0%);
+  transition: transform 0.2s ease-in-out;
+  transition-delay: 0.8s;
+  position: absolute;
+  top: calc(50% + 3px);
+  right: 100%;
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--text-color-dim);
+    transform: rotate(-135deg);
+  }
+}

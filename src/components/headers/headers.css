@@ -1,0 +1,204 @@
+.headers {
+  flex: 1;
+  width: 70vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-patterns {
+  padding: var(--spacing-sm);
+  border-bottom: solid 2px var(--border-dim);
+
+  label {
+    display: flex;
+    align-items: center;
+    user-select: none;
+  }
+
+  .pattern-label {
+    color: var(--text-color-dim);
+    width: 8em;
+    padding: 0.6em 0;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    border: solid 1px var(--border-dim);
+
+    &:focus {
+      border: solid 1px var(--border-light);
+    }
+  }
+}
+
+.headers-container {
+  display: flex;
+  flex: 1;
+  min-height: 150px;
+  overflow: auto;
+}
+
+.header-items {
+  width: 100%;
+}
+
+.header-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: solid 1px var(--border-dimmer);
+  cursor: pointer;
+  color: var(--text-color-dimmer);
+
+  &:hover {
+    background-color: var(--bg-color-dark);
+
+    .remove-button {
+      opacity: 1;
+    }
+  }
+
+  &.enabled {
+    color: var(--text-color);
+
+    .target,
+    .mod-type {
+      opacity: 1;
+    }
+  }
+
+  .target,
+  .mod-type {
+    opacity: 0.25;
+  }
+
+  .target {
+    display: block;
+    width: 20px;
+    height: 20px;
+
+    svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+      fill: var(--text-color);
+
+      #request,
+      #response {
+        opacity: 0.25;
+      }
+
+      &.request {
+        #request {
+          opacity: 1;
+          fill: var(--green-light);
+        }
+      }
+
+      &.response {
+        #response {
+          opacity: 1;
+          fill: var(--purple-light);
+        }
+      }
+    }
+  }
+
+  .mod-type {
+    width: 40px;
+    text-align: center;
+
+    &:before {
+      display: inline-block;
+      vertical-align: middle;
+      content: "";
+      width: 0.6em;
+      height: 0.6em;
+      border-radius: 50%;
+      text-align: center;
+    }
+
+    &.set:before {
+      background-color: green;
+    }
+
+    &.remove:before {
+      background-color: red;
+    }
+
+    &.append:before {
+      background-color: orange;
+    }
+  }
+
+  .header-name,
+  .header-value {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .header-name {
+    width: 180px;
+    padding-right: 1em;
+  }
+
+  .header-value {
+    flex: 1;
+  }
+
+  .remove-button {
+    background: none;
+    border: none;
+    margin-right: var(--spacing-negative-tiny);
+    opacity: 0;
+    transition: opacity 0.5s;
+
+    &:hover {
+      svg {
+        fill: var(--text-color-dim);
+      }
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--text-color-dimmer);
+    }
+  }
+}
+
+.header-dialog {
+  &.add {
+    border: solid 1px var(--green-lighter);
+  }
+
+  &.edit {
+    border: solid 1px var(--purple-lighter);
+  }
+
+  section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 16px;
+    margin-bottom: 1em;
+  }
+
+  article {
+    flex: 1;
+  }
+
+  input[type="text"],
+  select {
+    width: 100%;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+  }
+}
