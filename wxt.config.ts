@@ -11,11 +11,13 @@ export default defineConfig({
     plugins: [svgr({ svgrOptions: { exportType: "default" } })],
   }),
   manifest: {
-    version: "1.0.0",
-    description: "Modify HTTP request and response headers.",
-    name: "Headra",
     permissions: ["storage", "declarativeNetRequest"],
     host_permissions: ["<all_urls>"],
+    browser_specific_settings: {
+      gecko: {
+        id: "headra@daleyjem.com",
+      },
+    },
   },
   webExt: {
     disabled: process.env.NO_BROWSER === "true",
