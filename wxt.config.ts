@@ -5,6 +5,7 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   manifestVersion: 3,
   srcDir: "src",
+  outDir: "build",
   modules: ["@wxt-dev/module-react"],
   vite: () => ({
     plugins: [svgr({ svgrOptions: { exportType: "default" } })],
