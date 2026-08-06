@@ -6,11 +6,11 @@ Cross-browser request and response header modification extension/add-on.
 
 ## Marketplaces
 
-- **Chrome**: _Not yet available_
-- **Firefox**: _Not yet available_
+- **Chrome**: _Currently awaiting approval..._
+- **Firefox**: _Currently awaiting approval..._
+- **Edge**: _Currently awaiting approval..._
+- **Opera**: _Currently awaiting approval..._
 - **Safari**: _Not yet available_
-- **Edge**: _Not yet available_
-- **Opera**: _Not yet available_
 
 ## Building from Source
 
