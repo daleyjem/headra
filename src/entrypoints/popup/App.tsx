@@ -1,3 +1,4 @@
+import { useAppInit, useMessageHandler } from "@/hooks";
 import { useAppStore } from "@/store/useAppStore";
 import { SettingsMenu } from "@/components/global/SettingsMenu";
 import { Profiles } from "@/components/profiles/Profiles";
@@ -8,6 +9,9 @@ import "./app.css";
 function App() {
   const hasHydrated = useAppStore((state) => state.hasHydrated);
   const errorAlert = useAppStore((state) => state.errorAlert);
+
+  useAppInit();
+  useMessageHandler();
 
   if (!hasHydrated) {
     return null;

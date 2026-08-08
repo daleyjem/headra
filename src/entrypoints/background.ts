@@ -1,11 +1,11 @@
 import { browser } from "wxt/browser";
-import type { Header, Profile } from "@/types";
+import { type Header, type Profile, type RuntimeMessage } from "@/types";
 import { STORAGE_KEY } from "@/config/constants";
 
 const MAX_HEADERS_PER_PROFILE = 10_000;
+const DEFAULT_ERROR_MESSAGE = "Something went wrong";
 
 const ALL_RESOURCE_TYPES: Browser.declarativeNetRequest.ResourceType[] = [
-  browser.declarativeNetRequest.ResourceType.MAIN_FRAME,
   browser.declarativeNetRequest.ResourceType.MAIN_FRAME,
   browser.declarativeNetRequest.ResourceType.SUB_FRAME,
   browser.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
@@ -16,6 +16,31 @@ const ALL_RESOURCE_TYPES: Browser.declarativeNetRequest.ResourceType[] = [
   browser.declarativeNetRequest.ResourceType.OBJECT,
   browser.declarativeNetRequest.ResourceType.OTHER,
 ];
+
+const setFailure = (reason: string) => {
+  let failure = reason ? DEFAULT_ERROR_MESSAGE : "";
+
+  if (reason.includes(`incorrect value for the "regexFilter" key`)) {
+    failure = `Bad regex request pattern.`;
+  }
+  if (reason.includes(`cannot have an empty value`)) {
+    failure = `Request pattern cannot have an empty value.`;
+  }
+  if (reason.includes(`Only standard HTTP request headers that can specify multiple values`)) {
+    failure = `Can't "append" headers that don't support multiple entries.`;
+  }
+
+  browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
+    // The popup probably isn't listening yet. Log otherwise.
+    if (!String(err).includes("Receiving end does not exist")) {
+      console.log("[Headra] sendMessage error:", err);
+    }
+  });
+
+  if (failure === DEFAULT_ERROR_MESSAGE) {
+    console.error("[Headra] Sync error:", reason);
+  }
+};
 
 const toRuleId = (profileId: number, headerId: number): number =>
   (profileId + 1) * MAX_HEADERS_PER_PROFILE + headerId;
@@ -40,7 +65,7 @@ const headerToRule = (profile: Profile, header: Header): Browser.declarativeNetR
         : { responseHeaders: [headerEntry] }),
     },
     condition: {
-      urlFilter: profile.requestPattern,
+      [profile.requestRegex ? "regexFilter" : "urlFilter"]: profile.requestPattern,
       ...(domains && { requestDomains: domains }),
       resourceTypes: ALL_RESOURCE_TYPES,
     },
@@ -83,13 +108,20 @@ const syncAllRules = async () => {
 
     console.log(`[Headra] Syncing...`, newRules);
 
-    await browser.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: currentRuleIds,
-      addRules: newRules,
-    });
+    await browser.declarativeNetRequest
+      .updateDynamicRules({
+        removeRuleIds: currentRuleIds,
+        addRules: newRules,
+      })
+      .then(() => {
+        setFailure("");
+      })
+      .catch((reason) => {
+        setFailure(String(reason));
+      });
 
     if (newRules.length > 0) {
-      browser.action.setIcon({
+      await browser.action.setIcon({
         path: {
           16: "icon/16.png",
           32: "icon/32.png",
@@ -99,7 +131,7 @@ const syncAllRules = async () => {
         },
       });
     } else {
-      browser.action.setIcon({
+      await browser.action.setIcon({
         path: {
           16: "icon/16-inactive.png",
           32: "icon/32-inactive.png",
@@ -127,6 +159,21 @@ const debounce = <T extends (...args: never[]) => void>(fn: T, delayMs: number) 
 const debouncedSyncAllRules = debounce(syncAllRules, 300);
 
 export default defineBackground(() => {
+  /**
+   * Listen for app events
+   */
+  browser.runtime.onMessage.addListener((message: RuntimeMessage, sender) => {
+    if (sender.url?.endsWith("popup.html")) {
+      /**
+       * We do this so that the UI can show an error message if a rule is invalid.
+       * @todo Maybe if we store the error message in persisted state, we don't have to.
+       */
+      if (message.type == "appEvent" && message.event === "init") {
+        syncAllRules();
+      }
+    }
+  });
+
   // initial sync on cold start / browser restart
   browser.runtime.onStartup.addListener(() => {
     syncAllRules();

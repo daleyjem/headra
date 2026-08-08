@@ -1,4 +1,5 @@
 import { useState } from "react";
+import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import type { Profile } from "@/types";
 import { DEFAULT_URL_PATTERN } from "@/config/constants";
@@ -18,6 +19,7 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
     domains: profile.domains ?? "",
     requestPattern: profile.requestPattern ?? "",
   });
+  const [draftRegex, setDraftRegex] = useState<boolean>(profile.requestRegex ?? false);
 
   const commitPatterns = useDebouncedCallback((patterns: DraftPatterns) => {
     updateProfile({ ...profile, ...patterns });
@@ -32,6 +34,12 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
 
   const onPatternBlur = () => {
     commitPatterns.flush();
+  };
+
+  const onRegexToggle = () => {
+    const requestRegex = !draftRegex;
+    setDraftRegex(!draftRegex);
+    updateProfile({ ...profile, requestRegex });
   };
 
   return (
@@ -52,11 +60,18 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
         <input
           type="text"
           name="requestPattern"
-          placeholder={DEFAULT_URL_PATTERN}
+          placeholder={draftRegex ? ".*" : DEFAULT_URL_PATTERN}
           value={draftPatterns.requestPattern}
           onChange={onPatternChange}
           onBlur={onPatternBlur}
         />
+        <span
+          title="Regular Expression"
+          className={cx({ regex: true, enabled: draftRegex })}
+          onClick={onRegexToggle}
+        >
+          (.*)
+        </span>
       </label>
     </div>
   );

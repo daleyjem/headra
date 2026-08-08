@@ -29,6 +29,20 @@
       border: solid 1px var(--border-light);
     }
   }
+
+  .regex {
+    margin-left: 1em;
+    cursor: pointer;
+    color: var(--text-color-dim);
+
+    &:hover {
+      color: var(--text-color);
+    }
+
+    &.enabled {
+      color: var(--checkbox-active-color);
+    }
+  }
 }
 
 .headers-container {
