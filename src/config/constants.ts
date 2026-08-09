@@ -1,5 +1,7 @@
 import type { Header } from "@/types";
 
+export const APP_NAME = "Headra";
+
 export const DEFAULT_URL_PATTERN = "*://*";
 
 export const TARGET_TYPES: Header["target"][] = ["request", "response"];

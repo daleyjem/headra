@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { type Header, type Profile, type RuntimeMessage } from "@/types";
 import { STORAGE_KEY } from "@/config/constants";
+import { logger } from "@/util/logger";
 
 const MAX_HEADERS_PER_PROFILE = 10_000;
 const DEFAULT_ERROR_MESSAGE = "Something went wrong";
@@ -33,12 +34,12 @@ const setFailure = (reason: string) => {
   browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
     // The popup probably isn't listening yet. Log otherwise.
     if (!String(err).includes("Receiving end does not exist")) {
-      console.log("[Headra] sendMessage error:", err);
+      logger.error("sendMessage error:", err);
     }
   });
 
   if (failure === DEFAULT_ERROR_MESSAGE) {
-    console.error("[Headra] Sync error:", reason);
+    logger.error("Sync error:", reason);
   }
 };
 
@@ -83,16 +84,16 @@ const getProfilesFromStorage = async (): Promise<Profile[]> => {
     const parsed = JSON.parse(raw);
     return parsed?.state?.profiles ?? [];
   } catch (err) {
-    console.error("[Headra] Failed to parse persisted state:", err);
+    logger.error("Failed to parse persisted state:", err);
     return [];
   }
 };
 
 const syncAllRules = async () => {
-  console.log("[Headra] Syncing DNR rules...");
+  logger.log("Syncing DNR rules...");
   try {
     const profiles = await getProfilesFromStorage();
-    console.log(`[Headra] Found:`, profiles);
+    logger.log(`Found:`, profiles);
 
     const currentRuleIds = (await browser.declarativeNetRequest.getDynamicRules()).map(
       (rule) => rule.id,
@@ -106,7 +107,7 @@ const syncAllRules = async () => {
           .map((header) => headerToRule(profile, header)),
       );
 
-    console.log(`[Headra] Syncing...`, newRules);
+    logger.log(`Syncing...`, newRules);
 
     let hasError = false;
 
@@ -155,7 +156,7 @@ const syncAllRules = async () => {
       });
     }
   } catch (err) {
-    console.error("[Headra] Failed to sync DNR rules:", err);
+    logger.error("Failed to sync DNR rules:", err);
   }
 };
 
@@ -204,7 +205,7 @@ export default defineBackground(() => {
 
   // keep rules in sync with whatever the UI writes to storage
   browser.storage.onChanged.addListener((changes, areaName) => {
-    console.log("[Headra] Storage changed:", changes, areaName);
+    logger.log("Storage changed:", changes, areaName);
     if (areaName !== "local") return;
     if (!(STORAGE_KEY in changes)) return;
     debouncedSyncAllRules();
