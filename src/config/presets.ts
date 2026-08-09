@@ -25,14 +25,6 @@ export const presets: Profile[] = [
     requestPattern: DEFAULT_URL_PATTERN,
     headers: [
       {
-        id: 0,
-        target: "response",
-        modType: "append",
-        enabled: true,
-        name: "Accept-CH",
-        value: "Sec-CH-Prefers-Color-Scheme",
-      },
-      {
         id: 1,
         target: "request",
         modType: "set",
