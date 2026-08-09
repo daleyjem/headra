@@ -34,7 +34,6 @@ function App() {
         <Profiles />
         <Headers />
       </main>
-      <footer></footer>
     </>
   );
 }

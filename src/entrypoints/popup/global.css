@@ -71,6 +71,7 @@ p {
   display: flex;
   flex-direction: column;
   border: solid 2px var(--border-dim);
+  overflow: hidden;
 }
 
 main {

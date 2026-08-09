@@ -7,8 +7,9 @@ import { AddEditDialog } from "./AddEditDialog";
 
 type Props = {
   header: Header;
-  onItemChange: (header: Header) => void;
-  onItemRemove: (header: Header) => void;
+  onItemChange: (changedHeader: Header) => void;
+  onItemRemove: (removedHeader: Header) => void;
+  onItemDuplicated: (duplicatedHeader: Header) => void;
 };
 
 export const HeaderItem = (props: Props) => {
@@ -45,6 +46,11 @@ export const HeaderItem = (props: Props) => {
     setIsEditing(false);
   };
 
+  const onDialogSaveNew = (duplicatedHeader: Header) => {
+    props.onItemDuplicated(duplicatedHeader);
+    setIsEditing(false);
+  };
+
   return (
     <div
       className={cx({
@@ -70,6 +76,7 @@ export const HeaderItem = (props: Props) => {
         open={isEditing}
         onCancel={onDialogCancel}
         onSave={onDialogSave}
+        onSaveNew={onDialogSaveNew}
       />
     </div>
   );

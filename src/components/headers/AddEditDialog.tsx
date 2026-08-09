@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MOD_TYPES, TARGET_TYPES } from "@/config/constants";
 import type { Header } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
+import { isTruthy } from "@/util/isTruthy";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { Select } from "../global/Select";
 
@@ -9,12 +10,13 @@ type Props = {
   header: Header;
   open: boolean;
   dialogType: "add" | "edit";
-  onSave: (header: Header) => void;
   onCancel: () => void;
+  onSaveNew?: (header: Header) => void;
+  onSave: (header: Header) => void;
 };
 
 export const AddEditDialog = (props: Props) => {
-  const { header, open, dialogType, onCancel, onSave } = props;
+  const { header, open, dialogType, onCancel, onSave, onSaveNew } = props;
 
   const setSelectedHeader = useAppStore((state) => state.setSelectedHeader);
 
@@ -27,7 +29,7 @@ export const AddEditDialog = (props: Props) => {
 
     const handleClose = () => {
       setSelectedHeader(null);
-      onCancel?.();
+      onCancel();
     };
 
     if (open) {
@@ -47,7 +49,12 @@ export const AddEditDialog = (props: Props) => {
   };
 
   const onSaveClick = () => {
-    onSave?.(draftHeader);
+    onSave(draftHeader);
+    dialogRef.current?.close();
+  };
+
+  const onSaveNewClick = () => {
+    onSaveNew?.(draftHeader);
     dialogRef.current?.close();
   };
 
@@ -126,8 +133,9 @@ export const AddEditDialog = (props: Props) => {
       <ButtonsContainer
         buttons={[
           { label: "Cancel", onClick: onCancelClick },
+          dialogType === "edit" && { label: "Save as New", onClick: onSaveNewClick },
           { label: "Save", onClick: onSaveClick, disabled: draftHeader.name.trim() === "" },
-        ]}
+        ].filter(isTruthy)}
       />
     </dialog>
   );

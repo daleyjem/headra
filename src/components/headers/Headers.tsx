@@ -89,6 +89,7 @@ export const Headers = () => {
               <HeaderItem
                 onItemChange={onItemChange}
                 onItemRemove={onItemRemove}
+                onItemDuplicated={onItemAdd}
                 key={index}
                 header={header}
               />
@@ -99,7 +100,7 @@ export const Headers = () => {
       <ButtonsContainer
         buttons={[
           {
-            label: "Add",
+            label: "Add Header",
             onClick: onAddClick,
             icon: PlusIcon,
             disabled: selectedProfileId === undefined,
