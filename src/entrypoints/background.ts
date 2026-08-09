@@ -108,6 +108,8 @@ const syncAllRules = async () => {
 
     console.log(`[Headra] Syncing...`, newRules);
 
+    let hasError = false;
+
     await browser.declarativeNetRequest
       .updateDynamicRules({
         removeRuleIds: currentRuleIds,
@@ -117,10 +119,11 @@ const syncAllRules = async () => {
         setFailure("");
       })
       .catch((reason) => {
+        hasError = true;
         setFailure(String(reason));
       });
 
-    if (newRules.length > 0) {
+    if (newRules.length > 0 && !hasError) {
       await browser.action.setIcon({
         path: {
           16: "icon/16.png",
@@ -128,6 +131,16 @@ const syncAllRules = async () => {
           48: "icon/48.png",
           96: "icon/96.png",
           128: "icon/128.png",
+        },
+      });
+    } else if (newRules.length > 0 && hasError) {
+      await browser.action.setIcon({
+        path: {
+          16: "icon/16-warning.png",
+          32: "icon/32-warning.png",
+          48: "icon/48-warning.png",
+          96: "icon/96-warning.png",
+          128: "icon/128-warning.png",
         },
       });
     } else {
