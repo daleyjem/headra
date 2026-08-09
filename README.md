@@ -7,7 +7,7 @@ Cross-browser request and response header modification extension/add-on.
 ## Marketplaces
 
 - [Google Chrome](https://chromewebstore.google.com/detail/headra/kkpnknfbjbfjdoghgjajogdmejjdlofo)
-- **Firefox**: _Currently awaiting approval..._
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/headra/)
 - [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/headra/ccfeoagdjmlbkjhnhbfpcjnoepkackbh)
 - **Opera**: _Currently awaiting approval..._
 - **Safari**: _Not yet available_
