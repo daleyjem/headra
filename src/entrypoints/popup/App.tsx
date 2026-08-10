@@ -24,10 +24,7 @@ function App() {
           <AppIcon />
           Headra
         </h1>
-        <div
-          className="error-alert"
-          dangerouslySetInnerHTML={{ __html: errorAlert?.message ?? "" }}
-        ></div>
+        <div className="error-alert">{errorAlert}</div>
         <SettingsMenu />
       </header>
       <main>

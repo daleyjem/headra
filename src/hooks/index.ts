@@ -9,7 +9,7 @@ export const useMessageHandler = () => {
   useEffect(() => {
     const handleOnMessage = (message: unknown) => {
       if (isRuntimeMessage(message) && "failure" in message) {
-        setErrorAlert({ message: message.failure });
+        setErrorAlert(message.failure);
       }
     };
 
@@ -26,7 +26,9 @@ export const useAppInit = () => {
   useEffect(() => {
     if (!appInitted.current) {
       appInitted.current = true;
-      browser.runtime.sendMessage<RuntimeMessage>({ type: "appEvent", event: "init" });
+      browser.runtime
+        .sendMessage<RuntimeMessage>({ type: "appEvent", event: "init" })
+        .catch(() => {});
     }
   }, []);
 };

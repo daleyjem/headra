@@ -2,6 +2,7 @@ import { browser } from "wxt/browser";
 import { type Header, type Profile, type RuntimeMessage } from "@/types";
 import { STORAGE_KEY } from "@/config/constants";
 import { logger } from "@/util/logger";
+import { determineError } from "@/util/determineError";
 
 const MAX_HEADERS_PER_PROFILE = 10_000;
 const DEFAULT_ERROR_MESSAGE = "Something went wrong";
@@ -18,25 +19,43 @@ const ALL_RESOURCE_TYPES: Browser.declarativeNetRequest.ResourceType[] = [
   browser.declarativeNetRequest.ResourceType.OTHER,
 ];
 
-const setFailure = (reason: string) => {
+let currFailure = "";
+let currRawStorage = "";
+
+const setFailure = async (reason: string) => {
   let failure = reason ? DEFAULT_ERROR_MESSAGE : "";
 
-  if (reason.includes(`incorrect value for the "regexFilter" key`)) {
+  if (determineError(reason) === "badRegex") {
     failure = `Bad regex request pattern.`;
   }
-  if (reason.includes(`cannot have an empty value`)) {
+  if (determineError(reason) === "emptyValue") {
     failure = `Request pattern cannot have an empty value.`;
   }
-  if (reason.includes(`Only standard HTTP request headers that can specify multiple values`)) {
+  if (determineError(reason) === "noMultiple") {
     failure = `Can't "append" headers that don't support multiple entries.`;
   }
 
-  browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
-    // The popup probably isn't listening yet. Log otherwise.
-    if (!String(err).includes("Receiving end does not exist")) {
-      logger.error("sendMessage error:", err);
+  if (failure !== currFailure) {
+    currFailure = failure;
+    const rawStorage = await getRawStorage();
+
+    if (typeof rawStorage !== "string") {
+      return;
     }
-  });
+
+    const storage = JSON.parse(rawStorage);
+
+    storage.state.errorAlert = failure;
+    logger.log("Background.js setting storage to", storage);
+    browser.storage.local.set({ [STORAGE_KEY]: JSON.stringify(storage) });
+
+    browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
+      // The popup probably isn't listening yet. Log otherwise.
+      if (!String(err).includes("Receiving end does not exist")) {
+        logger.error("sendMessage error:", err);
+      }
+    });
+  }
 
   if (failure === DEFAULT_ERROR_MESSAGE) {
     logger.error("Sync error:", reason);
@@ -73,15 +92,23 @@ const headerToRule = (profile: Profile, header: Header): Browser.declarativeNetR
   };
 };
 
-// TODO: adjust to match how profiles are actually persisted in storage —
-// this assumes a single `profiles` key holding Profile[]
-const getProfilesFromStorage = async (): Promise<Profile[]> => {
+async function getRawStorage() {
   const result = await browser.storage.local.get(STORAGE_KEY);
-  const raw = result[STORAGE_KEY];
-  if (typeof raw !== "string") return [];
+  return result[STORAGE_KEY];
+}
+
+const getProfilesFromStorage = async (): Promise<Profile[] | undefined> => {
+  const rawStorage = await getRawStorage();
+
+  if (typeof rawStorage !== "string") return [];
+  if (rawStorage === currRawStorage) {
+    return;
+  }
+
+  currRawStorage = rawStorage;
 
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(rawStorage);
     return parsed?.state?.profiles ?? [];
   } catch (err) {
     logger.error("Failed to parse persisted state:", err);
@@ -90,10 +117,11 @@ const getProfilesFromStorage = async (): Promise<Profile[]> => {
 };
 
 const syncAllRules = async () => {
-  logger.log("Syncing DNR rules...");
   try {
     const profiles = await getProfilesFromStorage();
-    logger.log(`Found:`, profiles);
+    if (!profiles) {
+      return;
+    }
 
     const currentRuleIds = (await browser.declarativeNetRequest.getDynamicRules()).map(
       (rule) => rule.id,
@@ -107,7 +135,7 @@ const syncAllRules = async () => {
           .map((header) => headerToRule(profile, header)),
       );
 
-    logger.log(`Syncing...`, newRules);
+    logger.log(`Syncing DNR rules...`, newRules);
 
     let hasError = false;
 
@@ -173,41 +201,19 @@ const debounce = <T extends (...args: never[]) => void>(fn: T, delayMs: number) 
 const debouncedSyncAllRules = debounce(syncAllRules, 300);
 
 export default defineBackground(() => {
-  /**
-   * Listen for app events
-   */
-  browser.runtime.onMessage.addListener((message: RuntimeMessage, sender) => {
-    if (sender.url?.endsWith("popup.html")) {
-      /**
-       * We do this so that the UI can show an error message if a rule is invalid.
-       * @todo Maybe if we store the error message in persisted state, we don't have to.
-       */
-      if (message.type == "appEvent" && message.event === "init") {
-        syncAllRules();
-      }
-    }
-  });
-
   // initial sync on cold start / browser restart
   browser.runtime.onStartup.addListener(() => {
-    syncAllRules();
-  });
-
-  // initial sync on install/update — also useful as a hook if you ever
-  // need to migrate/clear rules from an old ID scheme on update
-  browser.runtime.onInstalled.addListener((details) => {
-    if (details.reason === "update") {
-      // e.g. clear all dynamic rules here first if you ever change
-      // MAX_HEADERS_PER_PROFILE or the packing scheme
-    }
+    logger.log("runtime startup");
     syncAllRules();
   });
 
   // keep rules in sync with whatever the UI writes to storage
   browser.storage.onChanged.addListener((changes, areaName) => {
-    logger.log("Storage changed:", changes, areaName);
     if (areaName !== "local") return;
     if (!(STORAGE_KEY in changes)) return;
+
+    logger.log("Storage changed:", changes, areaName);
+
     debouncedSyncAllRules();
   });
 });

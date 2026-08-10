@@ -5,6 +5,7 @@ import type { Header } from "@/types";
 import { profilesSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
 import { DEFAULT_URL_PATTERN, STORAGE_KEY } from "@/config/constants";
+import { logger } from "@/util/logger";
 import { storageAdapter } from "./storageAdapter";
 
 type Updater = (state: Partial<AppState>) => void;
@@ -16,10 +17,7 @@ type AppState = {
    * if `recommendReinstall` is set to true, instruct to download raw storage string,
    * and re-install the extension.
    */
-  errorAlert?: {
-    message: string;
-    recommendReinstall?: boolean;
-  };
+  errorAlert?: string;
   /** True once storage has been read and the store is ready to use. */
   hasHydrated: boolean;
   profiles: Profile[];
@@ -105,10 +103,8 @@ const resetProfiles = (updateState: Updater) => (profiles: Profile[]) => {
     updateState({ profiles: parsed, selectedProfileId: profiles[0]?.id });
   } catch {
     updateState({
-      errorAlert: {
-        message:
-          "Imported profiles don't match expected schema.<br/>Create a backup, and reinstall the extension.",
-      },
+      errorAlert:
+        "Imported profiles don't match expected schema.<br/>Create a backup, and reinstall the extension.",
     });
   }
 };
@@ -116,6 +112,7 @@ const resetProfiles = (updateState: Updater) => (profiles: Profile[]) => {
 const persistedStateSchema = zod.object({
   profiles: profilesSchema,
   selectedProfileId: zod.number().optional(),
+  errorAlert: zod.string().optional(),
 });
 
 export const useAppStore = create<AppState>()(
@@ -139,6 +136,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         profiles: state.profiles,
         selectedProfileId: state.selectedProfileId,
+        errorAlert: state.errorAlert,
       }),
       merge: (persistedState, currentState) => {
         // Nothing in storage yet — genuinely first run, seed presets.
@@ -150,17 +148,18 @@ export const useAppStore = create<AppState>()(
           const selectedProfileId = parsed.profiles.some((p) => p.id === parsed.selectedProfileId)
             ? parsed.selectedProfileId
             : parsed.profiles[0]?.id;
-          return { ...currentState, profiles: parsed.profiles, selectedProfileId };
+          return {
+            ...currentState,
+            profiles: parsed.profiles,
+            selectedProfileId,
+            errorAlert: parsed.errorAlert,
+          };
         } catch {
           return {
             ...currentState,
-            profiles: [],
             selectedProfileId: undefined,
             selectedHeaderId: undefined,
-            errorAlert: {
-              message: "Issue parsing storage data for extension.",
-              recommendReinstall: true,
-            },
+            errorAlert: "Issue parsing storage data for extension.",
           };
         }
       },

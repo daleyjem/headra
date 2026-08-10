@@ -26,7 +26,7 @@ export const SettingsMenu = () => {
       const parsed = JSON.parse(text);
       resetProfiles(parsed);
     } catch {
-      setErrorAlert({ message: "Failed to parse JSON" });
+      setErrorAlert("Failed to parse JSON");
     } finally {
       event.target.value = "";
     }
