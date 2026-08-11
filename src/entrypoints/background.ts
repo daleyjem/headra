@@ -1,4 +1,5 @@
 import { browser } from "wxt/browser";
+import type { PersistedStorage } from "@/types";
 import { type Header, type Profile, type RuntimeMessage } from "@/types";
 import { STORAGE_KEY } from "@/config/constants";
 import { logger } from "@/util/logger";
@@ -20,7 +21,6 @@ const ALL_RESOURCE_TYPES: Browser.declarativeNetRequest.ResourceType[] = [
 ];
 
 let currFailure = "";
-let currRawStorage = "";
 
 const setFailure = async (reason: string) => {
   let failure = reason ? DEFAULT_ERROR_MESSAGE : "";
@@ -37,17 +37,11 @@ const setFailure = async (reason: string) => {
 
   if (failure !== currFailure) {
     currFailure = failure;
-    const rawStorage = await getRawStorage();
+    const storage = await browser.storage.local.get<PersistedStorage>(STORAGE_KEY);
 
-    if (typeof rawStorage !== "string") {
-      return;
-    }
-
-    const storage = JSON.parse(rawStorage);
-
-    storage.state.errorAlert = failure;
+    storage[STORAGE_KEY].errorAlert = failure;
     logger.log("Background.js setting storage to", storage);
-    browser.storage.local.set({ [STORAGE_KEY]: JSON.stringify(storage) });
+    browser.storage.local.set<PersistedStorage>({ [STORAGE_KEY]: storage[STORAGE_KEY] });
 
     browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
       // The popup probably isn't listening yet. Log otherwise.
@@ -92,28 +86,9 @@ const headerToRule = (profile: Profile, header: Header): Browser.declarativeNetR
   };
 };
 
-async function getRawStorage() {
-  const result = await browser.storage.local.get(STORAGE_KEY);
-  return result[STORAGE_KEY];
-}
-
 const getProfilesFromStorage = async (): Promise<Profile[] | undefined> => {
-  const rawStorage = await getRawStorage();
-
-  if (typeof rawStorage !== "string") return [];
-  if (rawStorage === currRawStorage) {
-    return;
-  }
-
-  currRawStorage = rawStorage;
-
-  try {
-    const parsed = JSON.parse(rawStorage);
-    return parsed?.state?.profiles ?? [];
-  } catch (err) {
-    logger.error("Failed to parse persisted state:", err);
-    return [];
-  }
+  const storage = await browser.storage.local.get<PersistedStorage>(STORAGE_KEY);
+  return (storage[STORAGE_KEY]?.profiles as Profile[]) ?? [];
 };
 
 const syncAllRules = async () => {

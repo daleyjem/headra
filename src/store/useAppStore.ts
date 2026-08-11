@@ -1,27 +1,19 @@
 import zod from "zod";
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import type { Header } from "@/types";
+import { persist } from "zustand/middleware";
+import type { Header, PersistedAppState } from "@/types";
 import { profilesSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
 import { DEFAULT_URL_PATTERN, STORAGE_KEY } from "@/config/constants";
-import { logger } from "@/util/logger";
 import { storageAdapter } from "./storageAdapter";
+import { logger } from "@/util/logger";
 
 type Updater = (state: Partial<AppState>) => void;
 type Getter = () => AppState;
 
-type AppState = {
-  /**
-   * This will show up in the header bar as an alert.
-   * if `recommendReinstall` is set to true, instruct to download raw storage string,
-   * and re-install the extension.
-   */
-  errorAlert?: string;
+type AppState = PersistedAppState & {
   /** True once storage has been read and the store is ready to use. */
   hasHydrated: boolean;
-  profiles: Profile[];
-  selectedProfileId?: Profile["id"];
   selectedHeaderId?: Header["id"];
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
@@ -47,7 +39,7 @@ const setSelectedHeader = (updateState: Updater) => (header: Header | null) => {
 };
 
 const addProfile = (updateState: Updater, getState: Getter) => () => {
-  const profiles = getState().profiles;
+  const profiles = getState().profiles ?? [];
   const newId = profiles.length === 0 ? 0 : profiles[profiles.length - 1].id + 1;
   const newProfile: Profile = {
     id: newId,
@@ -57,11 +49,11 @@ const addProfile = (updateState: Updater, getState: Getter) => () => {
     domains: "",
     enabled: true,
   };
-  updateState({ profiles: [...profiles, newProfile], selectedProfileId: newId });
+  updateState({ profiles: [...profiles, newProfile], selectedProfileId: newId, errorAlert: "" });
 };
 
 const updateProfile = (updateState: Updater, getState: Getter) => (updatedProfile: Profile) => {
-  const profiles = getState().profiles;
+  const profiles = getState().profiles ?? [];
   updateState({
     profiles: profiles.map((profile) =>
       profile.id === updatedProfile.id ? updatedProfile : profile,
@@ -70,7 +62,7 @@ const updateProfile = (updateState: Updater, getState: Getter) => (updatedProfil
 };
 
 const duplicateProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
-  const profiles = getState().profiles;
+  const profiles = getState().profiles ?? [];
   const profileToDuplicate = profiles.find((profile) => profile.id === profileId);
   if (!profileToDuplicate) return;
 
@@ -85,7 +77,7 @@ const duplicateProfile = (updateState: Updater, getState: Getter) => (profileId:
 };
 
 const removeProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
-  const profiles = getState().profiles;
+  const profiles = getState().profiles ?? [];
   const removeIndex = profiles.findIndex((profile) => profile.id === profileId);
   const newProfiles = profiles.filter((profile) => profile.id !== profileId);
   const newIndex = removeIndex === 0 ? 0 : removeIndex;
@@ -103,8 +95,7 @@ const resetProfiles = (updateState: Updater) => (profiles: Profile[]) => {
     updateState({ profiles: parsed, selectedProfileId: profiles[0]?.id });
   } catch {
     updateState({
-      errorAlert:
-        "Imported profiles don't match expected schema.<br/>Create a backup, and reinstall the extension.",
+      errorAlert: "Imported profiles don't match expected schema.",
     });
   }
 };
@@ -113,7 +104,8 @@ const persistedStateSchema = zod.object({
   profiles: profilesSchema,
   selectedProfileId: zod.number().optional(),
   errorAlert: zod.string().optional(),
-});
+  badState: zod.unknown().optional(),
+}) satisfies zod.ZodType<PersistedAppState>;
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -132,11 +124,19 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => storageAdapter),
+      storage: storageAdapter,
+      version: 1,
+      migrate: (persistedState, version) => {
+        if (version < 1) {
+          logger.log("[Headra] Migrating persisted state from version", version);
+        }
+        return persistedState as PersistedAppState;
+      },
       partialize: (state) => ({
         profiles: state.profiles,
         selectedProfileId: state.selectedProfileId,
         errorAlert: state.errorAlert,
+        badState: state.badState,
       }),
       merge: (persistedState, currentState) => {
         // Nothing in storage yet — genuinely first run, seed presets.
@@ -159,12 +159,24 @@ export const useAppStore = create<AppState>()(
             ...currentState,
             selectedProfileId: undefined,
             selectedHeaderId: undefined,
-            errorAlert: "Issue parsing storage data for extension.",
+            errorAlert: "Issue parsing stored data. Download profiles now, and report the issue.",
+            badState: persistedState,
           };
         }
       },
-      onRehydrateStorage: () => () => {
-        useAppStore.setState({ hasHydrated: true });
+      onRehydrateStorage: () => (state, error) => {
+        if (!error) {
+          useAppStore.setState({
+            hasHydrated: true,
+          });
+        } else {
+          useAppStore.setState({
+            profiles: [],
+            hasHydrated: true,
+            errorAlert: "Issue parsing stored data. Download profiles now, and report the issue.",
+            badState: state,
+          });
+        }
       },
     },
   ),

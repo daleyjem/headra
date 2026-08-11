@@ -16,17 +16,17 @@ export const Profiles = () => {
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const prevCountRef = useRef(profiles.length);
+  const prevCountRef = useRef(profiles?.length ?? 0);
 
   useEffect(() => {
-    if (profiles.length > prevCountRef.current) {
+    if ((profiles?.length ?? 0) > prevCountRef.current) {
       containerRef.current?.scrollTo({
         top: containerRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-    prevCountRef.current = profiles.length;
-  }, [profiles.length]);
+    prevCountRef.current = profiles?.length ?? 0;
+  }, [profiles?.length]);
 
   const handleAdd = () => {
     addProfile();
@@ -40,7 +40,9 @@ export const Profiles = () => {
 
   const handleDuplicate = () => {
     if (selectedProfileId !== undefined) {
-      const profileToDuplicate = profiles.find((profile) => profile.id === selectedProfileId);
+      const profileToDuplicate = (profiles ?? []).find(
+        (profile) => profile.id === selectedProfileId,
+      );
       if (profileToDuplicate) {
         duplicateProfile(profileToDuplicate.id);
       }
@@ -50,15 +52,15 @@ export const Profiles = () => {
   return (
     <div className="profiles">
       <h2>Profiles</h2>
-      {profiles.length === 0 ? (
+      {!profiles || profiles?.length === 0 ? (
         <NoItems>
-          Click the "+ Add" button below
+          Click the "Add +" button below
           <br />
           to add a profile.
         </NoItems>
       ) : (
         <div className="profile-list" ref={containerRef}>
-          {profiles.map((profile) => (
+          {(profiles ?? []).map((profile) => (
             <ProfileItem
               key={profile.id}
               profile={profile}

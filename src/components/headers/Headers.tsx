@@ -6,8 +6,8 @@ import { HeaderItem } from "./HeaderItem";
 import { ProfilePatterns } from "./ProfilePatterns";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
-import "./headers.css";
 import { AddEditDialog } from "./AddEditDialog";
+import "./headers.css";
 
 export const Headers = () => {
   const updateProfile = useAppStore((state) => state.updateProfile);
@@ -16,7 +16,7 @@ export const Headers = () => {
 
   const [isAdding, setIsAdding] = useState(false);
 
-  const profile = profiles.find((p) => p.id === selectedProfileId) ?? null;
+  const profile = (profiles ?? []).find((p) => p.id === selectedProfileId) ?? null;
   const headers = profile?.headers ?? [];
 
   const onItemChange = (changedHeader: Header) => {
@@ -71,15 +71,21 @@ export const Headers = () => {
           <NoItems>
             {selectedProfileId !== undefined ? (
               <>
-                Click the "+ Add" button below
+                Click the "Add Header +" button below
                 <br />
                 to add headers for this profile.
               </>
             ) : (
               <>
-                You need to add some
-                <br />
-                profiles first.
+                {!profiles || profiles.length === 0 ? (
+                  <>
+                    You need to add some
+                    <br />
+                    profiles first.
+                  </>
+                ) : (
+                  <>Select a profile</>
+                )}
               </>
             )}
           </NoItems>

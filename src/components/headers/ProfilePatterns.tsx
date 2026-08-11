@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import type { Profile } from "@/types";
@@ -21,7 +21,30 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
   });
   const [draftRegex, setDraftRegex] = useState<boolean>(profile.requestRegex ?? false);
 
+  // tracks the last values *this component* pushed to the store, so the sync
+  // effect below can tell "external change (restore)" apart from "my own edit
+  // finally landed back in props"
+  const lastCommitted = useRef<DraftPatterns>(draftPatterns);
+
+  useEffect(() => {
+    const incoming: DraftPatterns = {
+      domains: profile.domains ?? "",
+      requestPattern: profile.requestPattern ?? "",
+    };
+
+    const isExternalChange =
+      incoming.domains !== lastCommitted.current.domains ||
+      incoming.requestPattern !== lastCommitted.current.requestPattern;
+
+    if (isExternalChange) {
+      setDraftPatterns(incoming);
+      setDraftRegex(profile.requestRegex ?? false);
+      lastCommitted.current = incoming;
+    }
+  }, [profile.id, profile.domains, profile.requestPattern, profile.requestRegex]);
+
   const commitPatterns = useDebouncedCallback((patterns: DraftPatterns) => {
+    lastCommitted.current = patterns; // mark this as self-originated before it round-trips back
     updateProfile({ ...profile, ...patterns });
   }, 300);
 
@@ -38,7 +61,7 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
 
   const onRegexToggle = () => {
     const requestRegex = !draftRegex;
-    setDraftRegex(!draftRegex);
+    setDraftRegex(requestRegex);
     updateProfile({ ...profile, requestRegex });
   };
 
