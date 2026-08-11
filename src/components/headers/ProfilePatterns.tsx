@@ -21,9 +21,6 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
   });
   const [draftRegex, setDraftRegex] = useState<boolean>(profile.requestRegex ?? false);
 
-  // tracks the last values *this component* pushed to the store, so the sync
-  // effect below can tell "external change (restore)" apart from "my own edit
-  // finally landed back in props"
   const lastCommitted = useRef<DraftPatterns>(draftPatterns);
 
   useEffect(() => {

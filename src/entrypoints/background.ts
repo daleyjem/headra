@@ -1,9 +1,10 @@
 import { browser } from "wxt/browser";
 import type { PersistedStorage } from "@/types";
 import { type Header, type Profile, type RuntimeMessage } from "@/types";
-import { STORAGE_KEY } from "@/config/constants";
+import { STORAGE_KEY, STORAGE_KEY_BACKUP } from "@/config/constants";
 import { logger } from "@/util/logger";
 import { determineError } from "@/util/determineError";
+import { presets } from "@/config/presets";
 
 const MAX_HEADERS_PER_PROFILE = 10_000;
 const DEFAULT_ERROR_MESSAGE = "Something went wrong";
@@ -176,6 +177,10 @@ const debounce = <T extends (...args: never[]) => void>(fn: T, delayMs: number) 
 const debouncedSyncAllRules = debounce(syncAllRules, 300);
 
 export default defineBackground(() => {
+  browser.runtime.onInstalled.addListener(() => {
+    browser.storage.local.set<PersistedStorage>({ [STORAGE_KEY_BACKUP]: { profiles: presets } });
+  });
+
   // initial sync on cold start / browser restart
   browser.runtime.onStartup.addListener(() => {
     logger.log("runtime startup");

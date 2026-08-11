@@ -3,6 +3,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { SettingsMenu } from "@/components/global/SettingsMenu";
 import { Profiles } from "@/components/profiles/Profiles";
 import { Headers } from "@/components/headers/Headers";
+import { ToastMessage } from "@/components/global/ToastMessage";
 import AppIcon from "@/assets/icons/app-icon.svg?react";
 import "./app.css";
 
@@ -30,6 +31,7 @@ function App() {
       <main>
         <Profiles />
         <Headers />
+        <ToastMessage />
       </main>
     </>
   );

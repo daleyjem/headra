@@ -15,6 +15,8 @@ type AppState = PersistedAppState & {
   /** True once storage has been read and the store is ready to use. */
   hasHydrated: boolean;
   selectedHeaderId?: Header["id"];
+  toastMessage?: string;
+
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
   setErrorAlert: (errorAlert: AppState["errorAlert"]) => void;
@@ -22,7 +24,8 @@ type AppState = PersistedAppState & {
   duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
   updateProfile: (profile: Profile, updateSelected?: boolean) => void;
-  resetProfiles: (profiles: Profile[]) => void;
+  resetProfiles: (profiles: Profile[]) => true | string;
+  setToastMessage: (message: string) => void;
 };
 
 const setErrorAlert =
@@ -89,15 +92,20 @@ const removeProfile = (updateState: Updater, getState: Getter) => (profileId: nu
   });
 };
 
-const resetProfiles = (updateState: Updater) => (profiles: Profile[]) => {
-  try {
-    const parsed = profilesSchema.parse(profiles);
-    updateState({ profiles: parsed, selectedProfileId: profiles[0]?.id });
-  } catch {
-    updateState({
-      errorAlert: "Imported profiles don't match expected schema.",
-    });
-  }
+const resetProfiles =
+  (updateState: Updater) =>
+  (profiles: Profile[]): true | string => {
+    try {
+      const parsed = profilesSchema.parse(profiles);
+      updateState({ profiles: parsed, selectedProfileId: profiles[0]?.id });
+      return true;
+    } catch {
+      return "Imported profiles don't match expected schema.";
+    }
+  };
+
+const setToastMessage = (updateState: Updater) => (toastMessage: string) => {
+  updateState({ toastMessage });
 };
 
 const persistedStateSchema = zod.object({
@@ -112,6 +120,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       hasHydrated: false,
       profiles: [],
+      toastMessage: "",
 
       setSelectedProfile: setSelectedProfile(set),
       setSelectedHeader: setSelectedHeader(set),
@@ -121,6 +130,7 @@ export const useAppStore = create<AppState>()(
       updateProfile: updateProfile(set, get),
       removeProfile: removeProfile(set, get),
       resetProfiles: resetProfiles(set),
+      setToastMessage: setToastMessage(set),
     }),
     {
       name: STORAGE_KEY,

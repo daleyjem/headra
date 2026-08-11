@@ -83,9 +83,9 @@
   border: none;
   transform: translateY(-50%) translateX(0%);
   transition: transform 0.2s ease-in-out;
-  transition-delay: 0.8s;
   position: absolute;
   top: calc(50% + 3px);
+  margin-right: 2px;
   right: 100%;
   opacity: 0.5;
 

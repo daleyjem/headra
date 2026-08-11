@@ -168,6 +168,7 @@
     margin-right: var(--spacing-negative-tiny);
     opacity: 0;
     transition: opacity 0.5s;
+    transform: translate(6px, 0px);
 
     &:hover {
       svg {

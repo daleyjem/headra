@@ -13,42 +13,73 @@ import "./settings.css";
 export const SettingsMenu = () => {
   const profiles = useAppStore((state) => state.profiles);
   const resetProfiles = useAppStore((state) => state.resetProfiles);
-  const setErrorAlert = useAppStore((state) => state.setErrorAlert);
+  const setToastMessage = useAppStore((state) => state.setToastMessage);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLMenuElement>(null);
 
+  const parseImport = async (text: string) => {
+    try {
+      const parsed = JSON.parse(text);
+      const success = resetProfiles(parsed);
+      if (success === true) {
+        setToastMessage(`${parsed.length} profiles imported.`);
+      } else {
+        setToastMessage(success);
+      }
+    } catch {
+      setToastMessage("Failed to parse JSON");
+    }
+  };
+
   const onImportClick = () => {
-    fileInputRef.current?.click();
+    // For chromium-based browsers
+    if (!import.meta.env.FIREFOX) {
+      fileInputRef.current?.click();
+    } else {
+      const input = prompt("Paste profile JSON contents");
+      if (input) {
+        parseImport(input);
+      }
+      menuRef.current?.hidePopover();
+    }
   };
 
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      resetProfiles(parsed);
-    } catch {
-      setErrorAlert("Failed to parse JSON");
-    } finally {
-      event.target.value = "";
-    }
+    const text = await file.text();
+    await parseImport(text);
 
+    event.target.value = "";
     menuRef.current?.hidePopover();
   };
 
   const onBackupClick = async () => {
     await browser.storage.local.set<PersistedStorage>({ [STORAGE_KEY_BACKUP]: { profiles } });
+    setToastMessage(`${profiles?.length ?? 0} profiles backed up to storage.`);
     menuRef.current?.hidePopover();
   };
 
   const onRestoreClick = async () => {
-    const storage = await browser.storage.local.get<PersistedStorage>(STORAGE_KEY_BACKUP);
+    const storage = await browser.storage.local
+      .get<PersistedStorage>(STORAGE_KEY_BACKUP)
+      .catch(() => {});
+    if (!storage) {
+      setToastMessage(`"${STORAGE_KEY_BACKUP}" could not be read from storage.`);
+      menuRef.current?.hidePopover();
+      return;
+    }
     const state = storage[STORAGE_KEY_BACKUP];
     if (state.profiles) {
-      resetProfiles(state.profiles);
+      const success = resetProfiles(state.profiles);
+      if (success === true) {
+        setToastMessage(`${state.profiles.length} profiles restored from backup.`);
+      } else {
+        console.log("umm", success);
+        setToastMessage(success);
+      }
     }
     menuRef.current?.hidePopover();
   };
