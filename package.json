@@ -1,6 +1,6 @@
 {
   "name": "Headra",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Modify HTTP request and response headers.",
   "type": "module",
