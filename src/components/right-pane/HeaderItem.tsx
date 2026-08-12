@@ -3,7 +3,7 @@ import cx from "classnames";
 import type { Header } from "@/types";
 import ReqResIcon from "@/assets/icons/req-res-icon.svg?react";
 import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
-import { AddEditDialog } from "./AddEditDialog";
+import { AddEditHeaderDialog } from "./AddEditHeaderDialog";
 
 type Props = {
   header: Header;
@@ -70,7 +70,7 @@ export const HeaderItem = (props: Props) => {
         <TrashcanIcon />
       </button>
 
-      <AddEditDialog
+      <AddEditHeaderDialog
         dialogType="edit"
         header={props.header}
         open={isEditing}
