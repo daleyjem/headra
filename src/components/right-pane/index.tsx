@@ -6,7 +6,7 @@ import { HeaderItem } from "./HeaderItem";
 import { ProfilePatterns } from "./ProfilePatterns";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
-import { AddEditDialog } from "./AddEditDialog";
+import { AddEditHeaderDialog } from "./AddEditHeaderDialog";
 import "./headers.css";
 
 export const RightPane = () => {
@@ -14,12 +14,12 @@ export const RightPane = () => {
   const profiles = useAppStore((state) => state.profiles);
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
 
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAddingHeader, setIsAddingHeader] = useState(false);
 
   const profile = (profiles ?? []).find((p) => p.id === selectedProfileId) ?? null;
   const headers = profile?.headers ?? [];
 
-  const onItemChange = (changedHeader: Header) => {
+  const onHeaderItemChange = (changedHeader: Header) => {
     if (profile) {
       updateProfile({
         ...profile,
@@ -28,7 +28,7 @@ export const RightPane = () => {
     }
   };
 
-  const onItemRemove = (removedHeader: Header) => {
+  const onHeaderItemRemove = (removedHeader: Header) => {
     if (profile) {
       updateProfile({
         ...profile,
@@ -37,8 +37,8 @@ export const RightPane = () => {
     }
   };
 
-  const onItemAdd = (newHeader: Header) => {
-    setIsAdding(false);
+  const onHeaderItemAdd = (newHeader: Header) => {
+    setIsAddingHeader(false);
     if (profile) {
       let newId = 0;
       // Get the greatest existing header ID and increment it for the new header
@@ -52,12 +52,16 @@ export const RightPane = () => {
     }
   };
 
-  const onAddClick = () => {
-    setIsAdding(true);
+  const onAddHeaderClick = () => {
+    setIsAddingHeader(true);
   };
 
-  const onAddDialogCancel = () => {
-    setIsAdding(false);
+  const onAddInterceptClick = () => {
+    setIsAddingHeader(true);
+  };
+
+  const onAddHeaderDialogCancel = () => {
+    setIsAddingHeader(false);
   };
 
   return (
@@ -93,9 +97,9 @@ export const RightPane = () => {
           <div className="header-items">
             {headers.map((header, index) => (
               <HeaderItem
-                onItemChange={onItemChange}
-                onItemRemove={onItemRemove}
-                onItemDuplicated={onItemAdd}
+                onItemChange={onHeaderItemChange}
+                onItemRemove={onHeaderItemRemove}
+                onItemDuplicated={onHeaderItemAdd}
                 key={index}
                 header={header}
               />
@@ -107,17 +111,23 @@ export const RightPane = () => {
         buttons={[
           {
             label: "Add Header",
-            onClick: onAddClick,
+            onClick: onAddHeaderClick,
+            icon: PlusIcon,
+            disabled: selectedProfileId === undefined,
+          },
+          {
+            label: "Add Intercept",
+            onClick: onAddInterceptClick,
             icon: PlusIcon,
             disabled: selectedProfileId === undefined,
           },
         ]}
       />
-      <AddEditDialog
-        open={isAdding}
+      <AddEditHeaderDialog
+        open={isAddingHeader}
         dialogType="add"
-        onCancel={onAddDialogCancel}
-        onSave={onItemAdd}
+        onCancel={onAddHeaderDialogCancel}
+        onSave={onHeaderItemAdd}
         header={{
           enabled: true,
           id: -1,

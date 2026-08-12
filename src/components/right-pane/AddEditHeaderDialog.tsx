@@ -15,7 +15,7 @@ type Props = {
   onSave: (header: Header) => void;
 };
 
-export const AddEditDialog = (props: Props) => {
+export const AddEditHeaderDialog = (props: Props) => {
   const { header, open, dialogType, onCancel, onSave, onSaveNew } = props;
 
   const setSelectedHeader = useAppStore((state) => state.setSelectedHeader);
