@@ -110,14 +110,14 @@ export const RightPane = () => {
       <ButtonsContainer
         buttons={[
           {
-            label: "Add Header",
-            onClick: onAddHeaderClick,
+            label: "Add Intercept",
+            onClick: onAddInterceptClick,
             icon: PlusIcon,
             disabled: selectedProfileId === undefined,
           },
           {
-            label: "Add Intercept",
-            onClick: onAddInterceptClick,
+            label: "Add Header",
+            onClick: onAddHeaderClick,
             icon: PlusIcon,
             disabled: selectedProfileId === undefined,
           },
