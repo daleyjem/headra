@@ -56,10 +56,6 @@ export const RightPane = () => {
     setIsAddingHeader(true);
   };
 
-  const onAddInterceptClick = () => {
-    setIsAddingHeader(true);
-  };
-
   const onAddHeaderDialogCancel = () => {
     setIsAddingHeader(false);
   };
@@ -112,12 +108,6 @@ export const RightPane = () => {
           {
             label: "Add Header",
             onClick: onAddHeaderClick,
-            icon: PlusIcon,
-            disabled: selectedProfileId === undefined,
-          },
-          {
-            label: "Add Intercept",
-            onClick: onAddInterceptClick,
             icon: PlusIcon,
             disabled: selectedProfileId === undefined,
           },
