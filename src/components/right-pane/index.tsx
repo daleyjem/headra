@@ -9,7 +9,7 @@ import { NoItems } from "../global/NoItems";
 import { AddEditDialog } from "./AddEditDialog";
 import "./headers.css";
 
-export const Headers = () => {
+export const RightPane = () => {
   const updateProfile = useAppStore((state) => state.updateProfile);
   const profiles = useAppStore((state) => state.profiles);
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);

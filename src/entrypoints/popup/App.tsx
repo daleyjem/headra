@@ -1,8 +1,8 @@
 import { useAppInit, useMessageHandler } from "@/hooks";
 import { useAppStore } from "@/store/useAppStore";
 import { SettingsMenu } from "@/components/global/SettingsMenu";
-import { Profiles } from "@/components/profiles/Profiles";
-import { Headers } from "@/components/headers/Headers";
+import { LeftPane } from "@/components/left-pane";
+import { RightPane } from "@/components/right-pane";
 import { ToastMessage } from "@/components/global/ToastMessage";
 import AppIcon from "@/assets/icons/app-icon.svg?react";
 import "./app.css";
@@ -29,8 +29,8 @@ function App() {
         <SettingsMenu />
       </header>
       <main>
-        <Profiles />
-        <Headers />
+        <LeftPane />
+        <RightPane />
         <ToastMessage />
       </main>
     </>

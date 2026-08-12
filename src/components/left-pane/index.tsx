@@ -8,7 +8,7 @@ import DuplicateIcon from "@/assets/icons/duplicate-icon.svg?react";
 import PlusIcon from "@/assets/icons/plus-icon.svg?react";
 import "./profiles.css";
 
-export const Profiles = () => {
+export const LeftPane = () => {
   const profiles = useAppStore((state) => state.profiles);
   const addProfile = useAppStore((state) => state.addProfile);
   const duplicateProfile = useAppStore((state) => state.duplicateProfile);
