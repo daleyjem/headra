@@ -2,14 +2,24 @@ import zod from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Header, PersistedAppState } from "@/types";
-import { profilesSchema, type Profile } from "@/types";
+import { persistedStateSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
-import { DEFAULT_URL_PATTERN, GlobalErrors, STORAGE_KEY } from "@/config/constants";
-import { storageAdapter } from "./storageAdapter";
+import { GlobalErrors, STORAGE_KEY } from "@/config/constants";
 import { logger } from "@/util/logger";
+import {
+  addProfile,
+  duplicateProfile,
+  removeProfile,
+  resetProfiles,
+  setSelectedHeader,
+  setSelectedProfile,
+  updateProfile,
+} from "./profiles";
+import { storageAdapter } from "./storageAdapter";
+import { setErrorAlert, setToastMessage } from "./messaging";
 
-type Updater = (state: Partial<AppState>) => void;
-type Getter = () => AppState;
+export type StateSetter = (state: Partial<AppState>) => void;
+export type StateGetter = () => AppState;
 
 type AppState = PersistedAppState & {
   /** True once storage has been read and the store is ready to use. */
@@ -19,7 +29,7 @@ type AppState = PersistedAppState & {
 
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
-  setErrorAlert: (errorAlert: AppState["errorAlert"]) => void;
+  setErrorAlert: (errorAlert: string) => void;
   addProfile: () => void;
   duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
@@ -27,98 +37,6 @@ type AppState = PersistedAppState & {
   resetProfiles: (profiles: Profile[]) => boolean;
   setToastMessage: (message: string) => void;
 };
-
-const setErrorAlert =
-  (updateState: Updater, _getState: Getter) => (errorAlert: AppState["errorAlert"]) => {
-    updateState({ errorAlert });
-  };
-
-const setSelectedProfile = (updateState: Updater) => (profile: Profile) => {
-  updateState({ selectedProfileId: profile.id });
-};
-
-const setSelectedHeader = (updateState: Updater) => (header: Header | null) => {
-  updateState({ selectedHeaderId: header?.id });
-};
-
-const addProfile = (updateState: Updater, getState: Getter) => () => {
-  const profiles = getState().profiles ?? [];
-  const newId = profiles.length === 0 ? 0 : profiles[profiles.length - 1].id + 1;
-  const newProfile: Profile = {
-    id: newId,
-    name: `Profile ${newId}`,
-    headers: [],
-    requestPattern: DEFAULT_URL_PATTERN,
-    domains: "",
-    enabled: true,
-  };
-  updateState({ profiles: [...profiles, newProfile], selectedProfileId: newId, errorAlert: "" });
-};
-
-const updateProfile = (updateState: Updater, getState: Getter) => (updatedProfile: Profile) => {
-  const profiles = getState().profiles ?? [];
-  updateState({
-    profiles: profiles.map((profile) =>
-      profile.id === updatedProfile.id ? updatedProfile : profile,
-    ),
-  });
-};
-
-const duplicateProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
-  const profiles = getState().profiles ?? [];
-  const profileToDuplicate = profiles.find((profile) => profile.id === profileId);
-  if (!profileToDuplicate) return;
-
-  const newId = profiles.length === 0 ? 0 : profiles[profiles.length - 1].id + 1;
-  const duplicatedProfile: Profile = {
-    ...profileToDuplicate,
-    enabled: false,
-    id: newId,
-    name: `${profileToDuplicate.name} (Copy)`,
-  };
-  updateState({ profiles: [...profiles, duplicatedProfile], selectedProfileId: newId });
-};
-
-const removeProfile = (updateState: Updater, getState: Getter) => (profileId: number) => {
-  const profiles = getState().profiles ?? [];
-  const removeIndex = profiles.findIndex((profile) => profile.id === profileId);
-  const newProfiles = profiles.filter((profile) => profile.id !== profileId);
-  const newIndex = removeIndex === 0 ? 0 : removeIndex;
-  const nextIndex = newIndex === newProfiles.length ? newIndex - 1 : newIndex;
-
-  updateState({
-    profiles: newProfiles,
-    selectedProfileId: newProfiles.length > 0 ? newProfiles[nextIndex].id : undefined,
-  });
-};
-
-const resetProfiles =
-  (updateState: Updater) =>
-  (profiles: Profile[]): boolean => {
-    try {
-      const parsed = profilesSchema.parse(profiles);
-      updateState({
-        profiles: parsed,
-        selectedProfileId: profiles[0]?.id,
-        errorAlert: "",
-        badState: undefined,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-const setToastMessage = (updateState: Updater) => (toastMessage: string) => {
-  updateState({ toastMessage });
-};
-
-const persistedStateSchema = zod.object({
-  profiles: profilesSchema,
-  selectedProfileId: zod.number().optional(),
-  errorAlert: zod.string().optional(),
-  badState: zod.unknown().optional(),
-}) satisfies zod.ZodType<PersistedAppState>;
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -129,7 +47,7 @@ export const useAppStore = create<AppState>()(
 
       setSelectedProfile: setSelectedProfile(set),
       setSelectedHeader: setSelectedHeader(set),
-      setErrorAlert: setErrorAlert(set, get),
+      setErrorAlert: setErrorAlert(set),
       addProfile: addProfile(set, get),
       duplicateProfile: duplicateProfile(set, get),
       updateProfile: updateProfile(set, get),
