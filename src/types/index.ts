@@ -1,23 +1,31 @@
 import zod from "zod";
 
-export interface Header {
+export type Header = {
   id: number;
   target: "response" | "request";
   modType: "set" | "remove" | "append";
   name: string;
   value: string;
   enabled: boolean;
-}
+};
 
-export interface Profile {
+export type Intercept = {
+  id: number;
+  name: string;
+  enabled: boolean;
+  target: "response" | "request";
+};
+
+export type Profile = {
   id: number;
   name: string;
   enabled: boolean;
   headers: Header[];
+  intercepts?: Intercept[];
   domains?: string;
   requestPattern: string;
   requestRegex?: boolean;
-}
+};
 
 export type PersistedAppState = {
   profiles?: Profile[];
@@ -51,11 +59,19 @@ export const headerSchema: zod.ZodType<Header> = zod.object({
   enabled: zod.boolean(),
 });
 
+export const interceptSchema: zod.ZodType<Intercept> = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  enabled: zod.boolean(),
+  target: zod.enum(["response", "request"]),
+});
+
 export const profileSchema: zod.ZodType<Profile> = zod.object({
   id: zod.number(),
   name: zod.string(),
   enabled: zod.boolean(),
   headers: zod.array(headerSchema),
+  intercepts: zod.array(interceptSchema).optional(),
   domains: zod.optional(zod.string()),
   requestPattern: zod.string(),
   requestRegex: zod.optional(zod.boolean()),

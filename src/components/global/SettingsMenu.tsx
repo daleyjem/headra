@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useAppStore } from "@/store/useAppStore";
-import { STORAGE_KEY_BACKUP } from "@/config/constants";
+import { GlobalErrors, STORAGE_KEY_BACKUP } from "@/config/constants";
 import type { PersistedStorage } from "@/types";
 import CogIcon from "@/assets/icons/cog-icon.svg?react";
 import DownloadIcon from "@/assets/icons/download-icon.svg?react";
@@ -25,7 +25,7 @@ export const SettingsMenu = () => {
       if (success === true) {
         setToastMessage(`${parsed.length} profiles imported.`);
       } else {
-        setToastMessage(success);
+        setToastMessage(GlobalErrors.parseImport);
       }
     } catch {
       setToastMessage("Failed to parse JSON");
@@ -77,8 +77,7 @@ export const SettingsMenu = () => {
       if (success === true) {
         setToastMessage(`${state.profiles.length} profiles restored from backup.`);
       } else {
-        console.log("umm", success);
-        setToastMessage(success);
+        setToastMessage(GlobalErrors.parseImport);
       }
     }
     menuRef.current?.hidePopover();

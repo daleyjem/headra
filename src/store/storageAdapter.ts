@@ -9,6 +9,7 @@ export const storageAdapter: PersistStorage<PersistedAppState> = {
     const storage = await browser.storage.local.get<PersistedStorage>(name);
     let state = storage[name];
 
+    // Migrate v0 string type storage
     if (typeof state === "string") {
       lastWritten = state;
       state = JSON.parse(state);

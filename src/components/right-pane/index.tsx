@@ -69,43 +69,52 @@ export const RightPane = () => {
       {profile && (
         <ProfilePatterns key={profile.id} profile={profile} updateProfile={updateProfile} />
       )}
-      <h2>Headers</h2>
-      <div className="headers-container">
-        {headers.length === 0 ? (
-          <NoItems>
-            {selectedProfileId !== undefined ? (
-              <>
-                Click the "Add Header +" button below
-                <br />
-                to add headers for this profile.
-              </>
-            ) : (
-              <>
-                {!profiles || profiles.length === 0 ? (
-                  <>
-                    You need to add some
-                    <br />
-                    profiles first.
-                  </>
-                ) : (
-                  <>Select a profile</>
-                )}
-              </>
-            )}
-          </NoItems>
-        ) : (
-          <div className="header-items">
-            {headers.map((header, index) => (
-              <HeaderItem
-                onItemChange={onHeaderItemChange}
-                onItemRemove={onHeaderItemRemove}
-                onItemDuplicated={onHeaderItemAdd}
-                key={index}
-                header={header}
-              />
-            ))}
-          </div>
-        )}
+      <div className="scrollable">
+        <h2>Headers</h2>
+        <div className="headers-container">
+          {headers.length === 0 ? (
+            <NoItems>
+              {selectedProfileId !== undefined ? (
+                <>
+                  Click the "Add Header +" button below
+                  <br />
+                  to add headers for this profile.
+                </>
+              ) : (
+                <>
+                  {!profiles || profiles.length === 0 ? (
+                    <>
+                      You need to add some
+                      <br />
+                      profiles first.
+                    </>
+                  ) : (
+                    <>Select a profile</>
+                  )}
+                </>
+              )}
+            </NoItems>
+          ) : (
+            <div className="header-items">
+              {headers.map((header, index) => (
+                <HeaderItem
+                  onItemChange={onHeaderItemChange}
+                  onItemRemove={onHeaderItemRemove}
+                  onItemDuplicated={onHeaderItemAdd}
+                  key={index}
+                  header={header}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <h2>
+          Intercepts&nbsp;
+          <small>
+            <em>(experimental)</em>
+          </small>
+        </h2>
+        <div className="intercepts-container"></div>
       </div>
       <ButtonsContainer
         buttons={[
