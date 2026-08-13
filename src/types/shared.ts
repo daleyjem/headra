@@ -21,11 +21,11 @@ export type Intercept = {
 } & (
   | {
       target: "request";
-      response: InterceptResponse;
+      request: InterceptRequest;
     }
   | {
       target: "respose";
-      request: InterceptRequest;
+      response: InterceptResponse;
     }
 );
 
