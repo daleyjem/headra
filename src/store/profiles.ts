@@ -1,4 +1,4 @@
-import type { Header, Profile } from "@/types";
+import type { Header, Intercept, Profile } from "@/types";
 import { profilesSchema } from "@/types";
 import { DEFAULT_URL_PATTERN } from "@/config/constants";
 import type { StateGetter, StateSetter } from "./useAppStore";
@@ -9,6 +9,10 @@ export const setSelectedProfile = (updateState: StateSetter) => (profile: Profil
 
 export const setSelectedHeader = (updateState: StateSetter) => (header: Header | null) => {
   updateState({ selectedHeaderId: header?.id });
+};
+
+export const setSelectedIntercept = (updateState: StateSetter) => (intercept: Intercept | null) => {
+  updateState({ selectedInterceptId: intercept?.id });
 };
 
 export const addProfile = (updateState: StateSetter, getState: StateGetter) => () => {

@@ -1,7 +1,7 @@
 import zod from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Header, PersistedAppState } from "@/types";
+import type { Header, Intercept, PersistedAppState } from "@/types";
 import { persistedStateSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
 import { GlobalErrors, STORAGE_KEY } from "@/config/constants";
@@ -12,6 +12,7 @@ import {
   removeProfile,
   resetProfiles,
   setSelectedHeader,
+  setSelectedIntercept,
   setSelectedProfile,
   updateProfile,
 } from "./profiles";
@@ -25,10 +26,12 @@ type AppState = PersistedAppState & {
   /** True once storage has been read and the store is ready to use. */
   hasHydrated: boolean;
   selectedHeaderId?: Header["id"];
+  selectedInterceptId?: Intercept["id"];
   toastMessage?: string;
 
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
+  setSelectedIntercept: (intercept: Intercept | null) => void;
   setErrorAlert: (errorAlert: string) => void;
   addProfile: () => void;
   duplicateProfile: (profileId: number) => void;
@@ -47,6 +50,7 @@ export const useAppStore = create<AppState>()(
 
       setSelectedProfile: setSelectedProfile(set),
       setSelectedHeader: setSelectedHeader(set),
+      setSelectedIntercept: setSelectedIntercept(set),
       setErrorAlert: setErrorAlert(set),
       addProfile: addProfile(set, get),
       duplicateProfile: duplicateProfile(set, get),

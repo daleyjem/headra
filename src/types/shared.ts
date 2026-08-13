@@ -7,12 +7,27 @@ export type Header = {
   enabled: boolean;
 };
 
+export type InterceptRequest = {};
+
+export type InterceptResponse = {
+  status: number;
+};
+
 export type Intercept = {
   id: number;
-  name: string;
+  title: string;
+  body: string;
   enabled: boolean;
-  target: "response" | "request";
-};
+} & (
+  | {
+      target: "request";
+      response: InterceptResponse;
+    }
+  | {
+      target: "respose";
+      request: InterceptRequest;
+    }
+);
 
 export type Profile = {
   id: number;
