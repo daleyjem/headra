@@ -12,14 +12,15 @@ type Props = {
 type DraftPatterns = {
   domains: string;
   requestPattern: string;
+  requestRegex: boolean;
 };
 
 export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
   const [draftPatterns, setDraftPatterns] = useState<DraftPatterns>({
     domains: profile.domains ?? "",
     requestPattern: profile.requestPattern ?? "",
+    requestRegex: profile.requestRegex ?? false,
   });
-  const [draftRegex, setDraftRegex] = useState<boolean>(profile.requestRegex ?? false);
 
   const lastCommitted = useRef<DraftPatterns>(draftPatterns);
 
@@ -27,21 +28,23 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
     const incoming: DraftPatterns = {
       domains: profile.domains ?? "",
       requestPattern: profile.requestPattern ?? "",
+      requestRegex: profile.requestRegex ?? false,
     };
 
     const isExternalChange =
       incoming.domains !== lastCommitted.current.domains ||
-      incoming.requestPattern !== lastCommitted.current.requestPattern;
+      incoming.requestPattern !== lastCommitted.current.requestPattern ||
+      incoming.requestRegex !== lastCommitted.current.requestRegex;
 
     if (isExternalChange) {
       setDraftPatterns(incoming);
-      setDraftRegex(profile.requestRegex ?? false);
       lastCommitted.current = incoming;
     }
   }, [profile.id, profile.domains, profile.requestPattern, profile.requestRegex]);
 
-  const commitPatterns = useDebouncedCallback((patterns: DraftPatterns) => {
-    lastCommitted.current = patterns; // mark this as self-originated before it round-trips back
+  const commitPatterns = useDebouncedCallback((patterns: Partial<DraftPatterns>) => {
+    const next = { ...draftPatterns, ...patterns };
+    lastCommitted.current = next; // mark this as self-originated before it round-trips back
     updateProfile({ ...profile, ...patterns });
   }, 300);
 
@@ -49,7 +52,7 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
     const { name, value } = event.target;
     const next = { ...draftPatterns, [name]: value };
     setDraftPatterns(next);
-    commitPatterns(next);
+    commitPatterns({ [name]: value });
   };
 
   const onPatternBlur = () => {
@@ -57,8 +60,10 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
   };
 
   const onRegexToggle = () => {
-    const requestRegex = !draftRegex;
-    setDraftRegex(requestRegex);
+    const requestRegex = !draftPatterns.requestRegex;
+    const next = { ...draftPatterns, requestRegex };
+    setDraftPatterns(next);
+    lastCommitted.current = next;
     updateProfile({ ...profile, requestRegex });
   };
 
@@ -80,14 +85,14 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
         <input
           type="text"
           name="requestPattern"
-          placeholder={draftRegex ? ".*" : DEFAULT_URL_PATTERN}
+          placeholder={draftPatterns.requestRegex ? ".*" : DEFAULT_URL_PATTERN}
           value={draftPatterns.requestPattern}
           onChange={onPatternChange}
           onBlur={onPatternBlur}
         />
         <span
           title="Regular Expression"
-          className={cx({ regex: true, enabled: draftRegex })}
+          className={cx({ regex: true, enabled: draftPatterns.requestRegex })}
           onClick={onRegexToggle}
         >
           (.*)

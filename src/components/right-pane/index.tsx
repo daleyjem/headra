@@ -56,9 +56,7 @@ export const RightPane = () => {
     setIsAddingHeader(true);
   };
 
-  const onAddInterceptClick = () => {
-    setIsAddingHeader(true);
-  };
+  const onAddInterceptClick = () => {};
 
   const onAddHeaderDialogCancel = () => {
     setIsAddingHeader(false);
