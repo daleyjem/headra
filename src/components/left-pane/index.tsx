@@ -6,7 +6,7 @@ import { ProfileItem } from "./ProfileItem";
 import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
 import DuplicateIcon from "@/assets/icons/duplicate-icon.svg?react";
 import PlusIcon from "@/assets/icons/plus-icon.svg?react";
-import "./profiles.css";
+import "./styles.css";
 
 export const LeftPane = () => {
   const profiles = useAppStore((state) => state.profiles);

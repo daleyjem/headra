@@ -7,7 +7,7 @@ import { ProfilePatterns } from "./ProfilePatterns";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
 import { AddEditHeaderDialog } from "./AddEditHeaderDialog";
-import "./headers.css";
+import "./styles.css";
 
 export const RightPane = () => {
   const updateProfile = useAppStore((state) => state.updateProfile);
