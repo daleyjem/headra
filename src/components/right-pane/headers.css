@@ -45,13 +45,6 @@
   }
 }
 
-.headers-container {
-  display: flex;
-  flex: 1;
-  min-height: 150px;
-  overflow: auto;
-}
-
 .header-items {
   width: 100%;
 }

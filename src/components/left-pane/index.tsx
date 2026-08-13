@@ -59,7 +59,7 @@ export const LeftPane = () => {
           to add a profile.
         </NoItems>
       ) : (
-        <div className="profile-list" ref={containerRef}>
+        <div className="scrollable" ref={containerRef}>
           {(profiles ?? []).map((profile) => (
             <ProfileItem
               key={profile.id}

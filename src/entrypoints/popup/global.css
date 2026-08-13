@@ -216,3 +216,14 @@ select {
     position: absolute;
   }
 }
+
+/**
+ * Shared classes
+ */
+
+.scrollable {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+}

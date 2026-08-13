@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 import type { Header, PersistedAppState } from "@/types";
 import { profilesSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
-import { DEFAULT_URL_PATTERN, STORAGE_KEY } from "@/config/constants";
+import { DEFAULT_URL_PATTERN, GlobalErrors, STORAGE_KEY } from "@/config/constants";
 import { storageAdapter } from "./storageAdapter";
 import { logger } from "@/util/logger";
 
@@ -24,7 +24,7 @@ type AppState = PersistedAppState & {
   duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
   updateProfile: (profile: Profile, updateSelected?: boolean) => void;
-  resetProfiles: (profiles: Profile[]) => true | string;
+  resetProfiles: (profiles: Profile[]) => boolean;
   setToastMessage: (message: string) => void;
 };
 
@@ -94,13 +94,18 @@ const removeProfile = (updateState: Updater, getState: Getter) => (profileId: nu
 
 const resetProfiles =
   (updateState: Updater) =>
-  (profiles: Profile[]): true | string => {
+  (profiles: Profile[]): boolean => {
     try {
       const parsed = profilesSchema.parse(profiles);
-      updateState({ profiles: parsed, selectedProfileId: profiles[0]?.id });
+      updateState({
+        profiles: parsed,
+        selectedProfileId: profiles[0]?.id,
+        errorAlert: "",
+        badState: undefined,
+      });
       return true;
     } catch {
-      return "Imported profiles don't match expected schema.";
+      return false;
     }
   };
 
@@ -162,14 +167,19 @@ export const useAppStore = create<AppState>()(
             ...currentState,
             profiles: parsed.profiles,
             selectedProfileId,
-            errorAlert: parsed.errorAlert,
+            badState: parsed.badState,
+            // Clear out parsing errors since this is now a successful parse.
+            errorAlert:
+              parsed.errorAlert === GlobalErrors.parseHydrate && !parsed.badState
+                ? ""
+                : parsed.errorAlert,
           };
         } catch {
           return {
             ...currentState,
             selectedProfileId: undefined,
             selectedHeaderId: undefined,
-            errorAlert: "Issue parsing stored data. Download profiles now, and report the issue.",
+            errorAlert: GlobalErrors.parseHydrate,
             badState: persistedState,
           };
         }
@@ -183,7 +193,7 @@ export const useAppStore = create<AppState>()(
           useAppStore.setState({
             profiles: [],
             hasHydrated: true,
-            errorAlert: "Issue parsing stored data. Download profiles now, and report the issue.",
+            errorAlert: GlobalErrors.parseHydrate,
             badState: state,
           });
         }

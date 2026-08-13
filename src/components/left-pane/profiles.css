@@ -4,12 +4,6 @@
   width: 30vw;
   height: 100%;
   border-right: solid 2px var(--border-dim);
-  overflow: auto;
-}
-
-.profile-list {
-  flex: 1;
-  overflow: auto;
 }
 
 .profile-item {

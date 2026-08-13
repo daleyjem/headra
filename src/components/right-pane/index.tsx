@@ -66,7 +66,7 @@ export const RightPane = () => {
         <ProfilePatterns key={profile.id} profile={profile} updateProfile={updateProfile} />
       )}
       <h2>Headers</h2>
-      <div className="headers-container">
+      <div className="scrollable">
         {headers.length === 0 ? (
           <NoItems>
             {selectedProfileId !== undefined ? (
