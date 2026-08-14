@@ -6,7 +6,7 @@ import { Headers } from "./Headers";
 import { Intercepts } from "./Intercepts";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
-import "./headers.css";
+import "./styles.css";
 
 export const RightPane = () => {
   const updateProfile = useAppStore((state) => state.updateProfile);
@@ -37,7 +37,7 @@ export const RightPane = () => {
   };
 
   return (
-    <div className="headers">
+    <div className="profile-contents">
       {profile && (
         <ProfilePatterns key={profile.id} profile={profile} updateProfile={updateProfile} />
       )}

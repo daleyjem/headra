@@ -1,6 +1,7 @@
 import { useAppStore } from "@/store/useAppStore";
 import type { Intercept, Profile } from "@/types";
 import { AddEditInterceptDialog } from "./AddEditInterceptDialog";
+import { InterceptItem } from "./InterceptItem";
 
 type Props = {
   profile: Profile | null;
@@ -62,8 +63,18 @@ export const Intercepts = (props: Props) => {
     <>
       {items.length > 0 && (
         <>
-          <h2>Intercepts</h2>
-          <div className="intercepts-container"></div>
+          <h2 className="title-intercepts">Intercepts</h2>
+          <div className="intercepts-container">
+            {items.map((intercept) => (
+              <InterceptItem
+                key={`intercept-${profile.id}-${intercept.id}`}
+                intercept={intercept}
+                onItemChange={onItemChange}
+                onItemDuplicated={onItemAdd}
+                onItemRemove={onItemRemove}
+              />
+            ))}
+          </div>
         </>
       )}
       <AddEditInterceptDialog
@@ -77,7 +88,7 @@ export const Intercepts = (props: Props) => {
           target: "request",
           title: "",
           body: "",
-          request: {},
+          status: 200,
         }}
       />
     </>

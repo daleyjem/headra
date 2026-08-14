@@ -1,11 +1,15 @@
-.headers {
+/**
+ * @todo consolidate header and intercept to something singular.
+ */
+
+.profile-contents {
   flex: 1;
   width: 70vw;
   display: flex;
   flex-direction: column;
 }
 
-.header-patterns {
+.profile-patterns {
   padding: var(--spacing-sm);
   border-bottom: solid 2px var(--border-dim);
 
@@ -45,11 +49,23 @@
   }
 }
 
-.header-items {
+.title-headers,
+.title-intercepts {
+  position: sticky;
+  top: 0;
+}
+
+.title-intercepts {
+  top: 40px;
+}
+
+.header-items,
+.intercept-items {
   width: 100%;
 }
 
-.header-item {
+.header-item,
+.intercept-item {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -112,10 +128,13 @@
     }
   }
 
-  .mod-type {
+  .mod-type,
+  .status {
     width: 40px;
     text-align: center;
+  }
 
+  .mod-type {
     &:before {
       display: inline-block;
       vertical-align: middle;
@@ -125,33 +144,64 @@
       border-radius: 50%;
       text-align: center;
     }
+  }
 
-    &.set:before {
-      background-color: green;
+  .mod-type,
+  .status {
+    &.info {
+      color: var(--mod-color-info);
+
+      &:before {
+        background-color: var(--mod-color-info);
+      }
     }
 
-    &.remove:before {
-      background-color: red;
+    &.positive {
+      color: var(--mod-color-positive);
+      &:before {
+        background-color: var(--mod-color-positive);
+      }
     }
 
-    &.append:before {
-      background-color: orange;
+    &.alt {
+      color: var(--mod-color-alt);
+      &:before {
+        background-color: var(--mod-color-alt);
+      }
+    }
+
+    &.alt2 {
+      color: var(--mod-color-alt2);
+      &:before {
+        background-color: var(--mod-color-alt2);
+      }
+    }
+
+    &.negative {
+      color: var(--mod-color-negative);
+      &:before {
+        background-color: var(--mod-color-negative);
+      }
     }
   }
 
   .header-name,
-  .header-value {
+  .header-value,
+  .intercept-title,
+  .intercept-body {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
   }
 
-  .header-name {
+  .header-name,
+  .intercept-title {
     width: 180px;
     padding-right: 1em;
   }
 
-  .header-value {
+  .header-value,
+  .intercept-body {
     flex: 1;
   }
 
@@ -177,7 +227,8 @@
   }
 }
 
-.header-dialog {
+.header-dialog,
+.intercept-dialog {
   &.add {
     border: solid 1px var(--green-lighter);
   }

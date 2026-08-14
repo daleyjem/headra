@@ -81,8 +81,8 @@ export const AddEditInterceptDialog = (props: Props) => {
           <h3>Intercept Title *</h3>
           <input
             type="text"
-            name="name"
-            placeholder="e.g. Cache-Control"
+            name="title"
+            placeholder="e.g. Mock Product"
             value={draftIntercept.title}
             onChange={onFormChange}
           />
@@ -108,13 +108,25 @@ export const AddEditInterceptDialog = (props: Props) => {
             ))}
           </Select>
         </article>
+        {draftIntercept.target === "response" && (
+          <article>
+            <h3>Status</h3>
+            <input
+              type="text"
+              name="status"
+              disabled={draftIntercept.target !== "response"}
+              placeholder="200"
+              value={draftIntercept.status}
+              onChange={onFormChange}
+            />
+          </article>
+        )}
       </section>
-
       <section>
         <article>
           <h3>{draftIntercept.target === "request" ? "Request" : "Response"} Body</h3>
           <textarea
-            name="value"
+            name="body"
             placeholder={`e.g. { "key": "value" }`}
             value={draftIntercept.body}
             onChange={onFormChange}

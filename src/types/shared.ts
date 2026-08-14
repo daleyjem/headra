@@ -10,7 +10,7 @@ export type Header = {
 export type InterceptRequest = {};
 
 export type InterceptResponse = {
-  status: number;
+  status?: number;
 };
 
 export type Intercept = {
@@ -18,16 +18,9 @@ export type Intercept = {
   title: string;
   body: string;
   enabled: boolean;
-} & (
-  | {
-      target: "request";
-      request: InterceptRequest;
-    }
-  | {
-      target: "respose";
-      response: InterceptResponse;
-    }
-);
+  status?: number;
+  target: "request" | "response";
+};
 
 export type Profile = {
   id: number;

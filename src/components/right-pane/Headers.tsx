@@ -61,7 +61,7 @@ export const Headers = (props: Props) => {
     <>
       {items.length > 0 && (
         <>
-          <h2>Headers</h2>
+          <h2 className="title-headers">Headers</h2>
           <div className="headers-container">
             <div className="header-items">
               {items.map((header) => (
@@ -69,7 +69,7 @@ export const Headers = (props: Props) => {
                   onItemChange={onItemChange}
                   onItemRemove={onItemRemove}
                   onItemDuplicated={onItemAdd}
-                  key={`${profile.id}-${header.id}`}
+                  key={`header-${profile.id}-${header.id}`}
                   header={header}
                 />
               ))}

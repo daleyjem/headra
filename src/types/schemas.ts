@@ -10,11 +10,13 @@ export const headerSchema: zod.ZodType<Header> = zod.object({
   enabled: zod.boolean(),
 });
 
-export const interceptSchema: zod.ZodType<Intercept> = zod.object({
+const interceptSchema = zod.object({
   id: zod.number(),
-  name: zod.string(),
+  title: zod.string(),
+  body: zod.string(),
   enabled: zod.boolean(),
-  target: zod.enum(["response", "request"]),
+  target: zod.enum(["request", "response"]),
+  status: zod.number().optional(),
 });
 
 export const profileSchema: zod.ZodType<Profile> = zod.object({

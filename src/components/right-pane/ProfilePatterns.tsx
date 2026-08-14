@@ -68,7 +68,7 @@ export const ProfilePatterns = ({ profile, updateProfile }: Props) => {
   };
 
   return (
-    <div className="header-patterns">
+    <div className="profile-patterns">
       <label>
         <span className="pattern-label">Domain(s)</span>
         <input
