@@ -129,25 +129,10 @@
   }
 
   .mod-type,
-  .status {
-    width: 40px;
+  .status-method {
+    width: 50px;
     text-align: center;
-  }
 
-  .mod-type {
-    &:before {
-      display: inline-block;
-      vertical-align: middle;
-      content: "";
-      width: 0.6em;
-      height: 0.6em;
-      border-radius: 50%;
-      text-align: center;
-    }
-  }
-
-  .mod-type,
-  .status {
     &.info {
       color: var(--mod-color-info);
 
@@ -183,6 +168,22 @@
         background-color: var(--mod-color-negative);
       }
     }
+  }
+
+  .mod-type {
+    &:before {
+      display: inline-block;
+      vertical-align: middle;
+      content: "";
+      width: 0.6em;
+      height: 0.6em;
+      border-radius: 50%;
+      text-align: center;
+    }
+  }
+
+  .status-method {
+    font-size: 0.8em;
   }
 
   .header-name,

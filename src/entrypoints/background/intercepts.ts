@@ -35,7 +35,8 @@ const handleFetchEvent = async (
     (intercept) =>
       request &&
       matchesPattern(intercept.requestPattern, request.url, intercept.requestRegex ?? false) &&
-      request.method === (intercept.method ?? RequestMethods.GET),
+      // If there's not a defined method, except whatever the request method is
+      request.method === (intercept.method ?? request.method),
   );
 
   logger.log(matchingIntercepts, params);

@@ -4,6 +4,7 @@ import type { Intercept } from "@/types";
 import ReqResIcon from "@/assets/icons/req-res-icon.svg?react";
 import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
 import { AddEditInterceptDialog } from "./AddEditInterceptDialog";
+import { getShortenedMethod } from "@/util/shared";
 
 type Props = {
   intercept: Intercept;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 export const InterceptItem = (props: Props) => {
-  const { enabled, target, title, body, status } = props.intercept;
+  const { enabled, target, title, body, status, method = "ALL" } = props.intercept;
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -63,15 +64,25 @@ export const InterceptItem = (props: Props) => {
         <ReqResIcon className={target} />
       </span>
       <span
-        className={cx("status", {
-          info: Number(status) < 200,
-          positive: Number(status) >= 200 && Number(status) < 300,
-          alt: Number(status) >= 300 && Number(status) < 400,
-          alt2: Number(status) >= 400 && Number(status) < 500,
-          negative: Number(status) >= 500,
-        })}
+        className={cx(
+          "status-method",
+          target === "response"
+            ? {
+                info: Number(status) < 200,
+                positive: Number(status) >= 200 && Number(status) < 300,
+                alt: Number(status) >= 300 && Number(status) < 400,
+                alt2: Number(status) >= 400 && Number(status) < 500,
+                negative: Number(status) >= 500,
+              }
+            : {
+                info: ["ALL"].includes(method),
+                positive: ["GET", "POST", "PUT"].includes(method),
+                alt: ["HEAD", "CONNECT", "OPTIONS", "TRACE", "PATCH"].includes(method),
+                negative: ["DELETE"].includes(method),
+              },
+        )}
       >
-        {target === "response" ? status : ""}
+        {target === "response" ? status : getShortenedMethod(method)}
       </span>
       <span className="intercept-title">{title}</span>
       <span className="intercept-body">{body}</span>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import ExperimentalIcon from "@/assets/icons/experimental-icon.svg?react";
 import PlusIcon from "@/assets/icons/plus-icon.svg?react";
 import { ProfilePatterns } from "./ProfilePatterns";
 import { Headers } from "./Headers";
@@ -81,7 +82,7 @@ export const RightPane = () => {
           {
             label: "Add Intercept",
             onClick: onAddInterceptClick,
-            icon: PlusIcon,
+            icon: ExperimentalIcon,
             disabled: selectedProfileId === undefined,
           },
           {

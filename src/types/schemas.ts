@@ -1,5 +1,6 @@
 import zod from "zod";
 import type { Header, Intercept, PersistedAppState, Profile } from "./shared";
+import { RequestMethods } from "@/config/constants";
 
 export const headerSchema: zod.ZodType<Header> = zod.object({
   id: zod.number(),
@@ -17,6 +18,7 @@ const interceptSchema = zod.object({
   enabled: zod.boolean(),
   target: zod.enum(["request", "response"]),
   status: zod.number().optional(),
+  method: zod.enum(Object.values(RequestMethods)).optional(),
 });
 
 export const profileSchema: zod.ZodType<Profile> = zod.object({

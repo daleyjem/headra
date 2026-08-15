@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { TARGET_TYPES } from "@/config/constants";
+import { RequestMethods, TARGET_TYPES } from "@/config/constants";
 import type { Intercept } from "@/types";
 import { useAppStore } from "@/store/useAppStore";
 import { isTruthy } from "@/util/isTruthy";
@@ -62,9 +62,16 @@ export const AddEditInterceptDialog = (props: Props) => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = event.target;
+    let newValue: string | boolean | undefined = value;
+    if (type === "checkbox" && "checked" in event.target) {
+      newValue = event.target.checked;
+    }
+    if (name === "method" && value === "*") {
+      newValue = undefined;
+    }
     setDraftIntercept((prev) => ({
       ...prev,
-      [name]: type === "checkbox" && "checked" in event.target ? event.target.checked : value,
+      [name]: newValue,
     }));
   };
 
@@ -108,17 +115,27 @@ export const AddEditInterceptDialog = (props: Props) => {
             ))}
           </Select>
         </article>
-        {draftIntercept.target === "response" && (
+        {draftIntercept.target === "response" ? (
           <article>
             <h3>Status Code</h3>
             <input
               type="text"
               name="status"
-              disabled={draftIntercept.target !== "response"}
               placeholder="200"
               value={draftIntercept.status}
               onChange={onFormChange}
             />
+          </article>
+        ) : (
+          <article>
+            <h3>Request Method</h3>
+            <Select name="method" value={draftIntercept.method} onChange={onFormChange}>
+              {["*", ...Object.keys(RequestMethods)].map((method) => (
+                <option key={method} value={method}>
+                  {method}
+                </option>
+              ))}
+            </Select>
           </article>
         )}
       </section>
