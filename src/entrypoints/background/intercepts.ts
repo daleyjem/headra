@@ -1,3 +1,4 @@
+import { parse } from "tldts";
 import type { BackgroundIntercept } from "@/types";
 import { getDomainsArray } from "./utils";
 import { logger } from "@/util/logger";
@@ -18,10 +19,25 @@ const getCurrentTab = async () => {
   return tabs[0];
 };
 
-const getCurrentDomain = async (tab?: Browser.tabs.Tab): Promise<string | undefined> => {
-  if (!tab) return;
+const matchesDomainPattern = (pattern: string, url: string): boolean => {
+  const currentHostname = new URL(url).hostname;
+  const patternInfo = parse(pattern);
+  const currentInfo = parse(currentHostname);
 
-  return new URL(String(tab.url)).hostname;
+  // Malformed pattern or hostname (no recognizable public suffix) — bail safely
+  if (!patternInfo.domain || !currentInfo.domain) return false;
+
+  const patternIsRootDomain = pattern === patternInfo.domain;
+
+  if (patternIsRootDomain) {
+    // User specified just the TLD+domain, e.g. "example.com"
+    // Match the root domain itself AND any subdomain of it.
+    return currentInfo.domain === patternInfo.domain;
+  }
+
+  // User specified a full subdomain, e.g. "api.example.com"
+  // Exact hostname match only.
+  return currentHostname === pattern;
 };
 
 const handleDetach = async () => {
@@ -84,10 +100,10 @@ export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
 
   currentTabId = currentTab.id;
 
-  // Get the current domain that we're on
-  const currentDomain = await getCurrentDomain(currentTab);
   const isActiveDomain = intercepts.some((intercept) =>
-    getDomainsArray(intercept.domains).some((domain) => domain === currentDomain),
+    getDomainsArray(intercept.domains).some(
+      (domain) => currentTab.url && matchesDomainPattern(domain, currentTab.url),
+    ),
   );
 
   // If we have some listeners, and are on a configured domain
