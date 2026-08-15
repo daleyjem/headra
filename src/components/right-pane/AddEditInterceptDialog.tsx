@@ -110,7 +110,7 @@ export const AddEditInterceptDialog = (props: Props) => {
         </article>
         {draftIntercept.target === "response" && (
           <article>
-            <h3>Status</h3>
+            <h3>Status Code</h3>
             <input
               type="text"
               name="status"

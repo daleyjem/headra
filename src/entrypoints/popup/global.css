@@ -237,4 +237,10 @@ select {
   flex-direction: column;
   flex: 1;
   overflow: auto;
+
+  h2 {
+    &:nth-of-type(2) {
+      border-top: solid 1px var(--border-dim);
+    }
+  }
 }
