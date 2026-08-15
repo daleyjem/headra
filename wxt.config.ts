@@ -10,8 +10,12 @@ export default defineConfig({
   vite: () => ({
     plugins: [svgr({ svgrOptions: { exportType: "default" } })],
   }),
-  manifest: {
-    permissions: ["storage", "declarativeNetRequest"],
+  manifest: ({ browser }) => ({
+    permissions: [
+      "storage",
+      "declarativeNetRequest",
+      ...(browser !== "firefox" ? ["activeTab", "debugger"] : []),
+    ],
     host_permissions: ["<all_urls>"],
     browser_specific_settings: {
       gecko: {
@@ -21,7 +25,7 @@ export default defineConfig({
         },
       },
     },
-  },
+  }),
   webExt: {
     disabled: process.env.NO_BROWSER === "true",
   },

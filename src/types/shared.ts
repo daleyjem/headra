@@ -7,12 +7,6 @@ export type Header = {
   enabled: boolean;
 };
 
-export type InterceptRequest = {};
-
-export type InterceptResponse = {
-  status?: number;
-};
-
 export type Intercept = {
   id: number;
   title: string;
@@ -55,3 +49,5 @@ export type RuntimeMessage =
       type: "setError";
       failure: string;
     };
+
+export type BackgroundIntercept = Intercept & Pick<Profile, "domains">;

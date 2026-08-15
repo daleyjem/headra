@@ -21,3 +21,16 @@ export const determineError = (msg: string): ErrorType | undefined => {
 
   return undefined;
 };
+
+export const ensureError = (value: unknown): Error => {
+  if (value instanceof Error) return value;
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "message" in value &&
+    typeof value.message === "string"
+  )
+    return new Error(value.message);
+
+  return new Error(String(value));
+};
