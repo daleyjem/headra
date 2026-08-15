@@ -17,3 +17,15 @@ export const STORAGE_KEY = "headra-storage";
 export const STORAGE_KEY_BACKUP = `${STORAGE_KEY}-backup`;
 
 export const DEBUGGER_VERSION = "1.3";
+
+export const RequestMethods = {
+  GET: "GET",
+  POST: "POST",
+  PUT: "PUT",
+  DELETE: "DELETE",
+  HEAD: "HEAD",
+  CONNECT: "CONNECT",
+  OPTIONS: "OPTIONS",
+  TRACE: "TRACE",
+  PATCH: "PATCH",
+} as const;

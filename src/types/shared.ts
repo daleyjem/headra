@@ -1,3 +1,7 @@
+import type { RequestMethods } from "@/config/constants";
+
+export type RequestMethod = (typeof RequestMethods)[keyof typeof RequestMethods];
+
 export type Header = {
   id: number;
   target: "response" | "request";
@@ -13,6 +17,7 @@ export type Intercept = {
   body: string;
   enabled: boolean;
   status?: number;
+  method?: RequestMethod;
   target: "request" | "response";
 };
 
@@ -50,4 +55,15 @@ export type RuntimeMessage =
       failure: string;
     };
 
-export type BackgroundIntercept = Intercept & Pick<Profile, "domains">;
+export type BackgroundIntercept = Intercept &
+  Pick<Profile, "domains" | "requestPattern" | "requestRegex">;
+
+export type BackgroundFetchParams = {
+  requestId?: number;
+  responseStatusCode: number;
+  request?: {
+    url: string;
+    method: RequestMethod;
+    postData: string;
+  };
+};

@@ -1,11 +1,12 @@
-import { parse } from "tldts";
-import type { BackgroundIntercept } from "@/types";
-import { getDomainsArray } from "./utils";
+import type { BackgroundFetchParams } from "@/types";
+import { type BackgroundIntercept } from "@/types";
 import { logger } from "@/util/logger";
-import { DEBUGGER_VERSION } from "@/config/constants";
+import { DEBUGGER_VERSION, RequestMethods } from "@/config/constants";
 import { setFailure } from "./shared";
+import { getDomainsArray, matchesDomainPattern, matchesPattern } from "./utils";
 
 let currentTabId: number | null = null;
+let currentIntercepts: BackgroundIntercept[] = [];
 let currentError = "";
 
 const getCurrentTab = async () => {
@@ -19,25 +20,45 @@ const getCurrentTab = async () => {
   return tabs[0];
 };
 
-const matchesDomainPattern = (pattern: string, url: string): boolean => {
-  const currentHostname = new URL(url).hostname;
-  const patternInfo = parse(pattern);
-  const currentInfo = parse(currentHostname);
+const handleFetchEvent = async (
+  source: Browser.debugger.DebuggerSession,
+  method: string,
+  params?: object,
+) => {
+  if (method !== "Fetch.requestPaused") return;
 
-  // Malformed pattern or hostname (no recognizable public suffix) — bail safely
-  if (!patternInfo.domain || !currentInfo.domain) return false;
+  const { requestId, responseStatusCode, request } = params as BackgroundFetchParams;
 
-  const patternIsRootDomain = pattern === patternInfo.domain;
+  const isResponseStage = responseStatusCode !== undefined;
 
-  if (patternIsRootDomain) {
-    // User specified just the TLD+domain, e.g. "example.com"
-    // Match the root domain itself AND any subdomain of it.
-    return currentInfo.domain === patternInfo.domain;
+  const matchingIntercepts = currentIntercepts.filter(
+    (intercept) =>
+      request &&
+      matchesPattern(intercept.requestPattern, request.url, intercept.requestRegex ?? false) &&
+      request.method === (intercept.method ?? RequestMethods.GET),
+  );
+
+  logger.log(matchingIntercepts, params);
+
+  try {
+    if (isResponseStage) {
+      // await handleResponseStage(source, requestId, params);
+    } else {
+      // await handleRequestStage(source, requestId, params);
+    }
+    await browser.debugger
+      .sendCommand(source, isResponseStage ? "Fetch.continueResponse" : "Fetch.continueRequest", {
+        requestId,
+      })
+      .catch((err) => logger.error("Fallback continue also failed", err));
+  } catch (error) {
+    logger.error("Failed to handle paused request, falling back to continue", error);
+    await browser.debugger
+      .sendCommand(source, isResponseStage ? "Fetch.continueResponse" : "Fetch.continueRequest", {
+        requestId,
+      })
+      .catch((err) => logger.error("Fallback continue also failed", err));
   }
-
-  // User specified a full subdomain, e.g. "api.example.com"
-  // Exact hostname match only.
-  return currentHostname === pattern;
 };
 
 const handleDetach = async () => {
@@ -49,6 +70,7 @@ const attachListeners = () => {
   // Chromium browsers
   if (!import.meta.env.FIREFOX) {
     browser.debugger.onDetach.addListener(handleDetach);
+    browser.debugger.onEvent.addListener(handleFetchEvent);
   }
 };
 
@@ -56,14 +78,21 @@ const detachListeners = () => {
   // Chromium browsers
   if (!import.meta.env.FIREFOX) {
     browser.debugger.onDetach.removeListener(handleDetach);
+    browser.debugger.onEvent.removeListener(handleFetchEvent);
   }
 };
 
-const attachIntercepts = async (tabId: number) => {
+const attachIntercepts = async (tabId: number, intercepts: BackgroundIntercept[]) => {
   // Chromium browsers
   if (!import.meta.env.FIREFOX) {
     logger.log("Attach debugger to", tabId);
     await browser.debugger.attach({ tabId }, DEBUGGER_VERSION);
+    await browser.debugger.sendCommand({ tabId }, "Fetch.enable", {
+      patterns: [
+        { urlPattern: "*", requestStage: "Request" },
+        { urlPattern: "*", requestStage: "Response" },
+      ],
+    });
   }
 };
 
@@ -100,15 +129,16 @@ export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
 
   currentTabId = currentTab.id;
 
-  const isActiveDomain = intercepts.some((intercept) =>
+  const domainIntercepts = intercepts.filter((intercept) =>
     getDomainsArray(intercept.domains).some(
       (domain) => currentTab.url && matchesDomainPattern(domain, currentTab.url),
     ),
   );
 
   // If we have some listeners, and are on a configured domain
-  if (intercepts.length > 0 && isActiveDomain) {
+  if (domainIntercepts.length > 0) {
+    currentIntercepts = domainIntercepts;
     attachListeners();
-    attachIntercepts(currentTabId);
+    attachIntercepts(currentTabId, domainIntercepts);
   }
 };

@@ -106,7 +106,12 @@ export const syncRules = async (includeHeaders = true, includeIntercepts = true)
         newInterceptRules.push(
           ...(profile.intercepts ?? [])
             .filter((intercept) => intercept.enabled)
-            .map((intercept) => ({ ...intercept, domains: profile.domains })),
+            .map((intercept) => ({
+              ...intercept,
+              domains: profile.domains,
+              requestPattern: profile.requestPattern,
+              requestRegex: profile.requestRegex,
+            })),
         );
       });
 
