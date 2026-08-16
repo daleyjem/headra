@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RuntimeMessage } from "@/types";
 
 type MessageType = RuntimeMessage["type"];
