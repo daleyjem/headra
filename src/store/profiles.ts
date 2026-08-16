@@ -26,7 +26,7 @@ export const addProfile = (updateState: StateSetter, getState: StateGetter) => (
     domains: "",
     enabled: true,
   };
-  updateState({ profiles: [...profiles, newProfile], selectedProfileId: newId, errorAlert: "" });
+  updateState({ profiles: [...profiles, newProfile], selectedProfileId: newId });
 };
 
 export const updateProfile =
@@ -77,7 +77,6 @@ export const resetProfiles =
       updateState({
         profiles: parsed,
         selectedProfileId: profiles[0]?.id,
-        errorAlert: "",
         badState: undefined,
       });
       return true;

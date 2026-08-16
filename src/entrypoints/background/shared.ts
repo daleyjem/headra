@@ -9,6 +9,15 @@ const DEFAULT_ERROR_MESSAGE = "Something went wrong";
 
 let currFailure = "";
 
+export const sendFailure = async (failure: string = currFailure) => {
+  await browser.runtime.sendMessage<RuntimeMessage>({ type: "setError", failure }).catch((err) => {
+    // The popup probably isn't listening yet. Log otherwise.
+    if (!String(err).includes("Receiving end does not exist")) {
+      logger.error("sendMessage error:", err);
+    }
+  });
+};
+
 export const setFailure = async (value: unknown, updateIcon = true) => {
   const reason = ensureError(value).message;
   let failure = reason;
@@ -25,20 +34,8 @@ export const setFailure = async (value: unknown, updateIcon = true) => {
 
   if (failure !== currFailure) {
     currFailure = failure;
-    const storage = await browser.storage.local.get<PersistedStorage>(STORAGE_KEY);
 
-    storage[STORAGE_KEY].errorAlert = failure;
-    logger.log("Background.js setting storage to", storage);
-    browser.storage.local.set<PersistedStorage>({ [STORAGE_KEY]: storage[STORAGE_KEY] });
-
-    await browser.runtime
-      .sendMessage<RuntimeMessage>({ type: "setError", failure })
-      .catch((err) => {
-        // The popup probably isn't listening yet. Log otherwise.
-        if (!String(err).includes("Receiving end does not exist")) {
-          logger.error("sendMessage error:", err);
-        }
-      });
+    await sendFailure(failure);
   }
 
   if (failure === "" && updateIcon) {

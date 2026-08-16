@@ -37,6 +37,5 @@ export const profilesSchema: zod.ZodType<Profile[]> = zod.array(profileSchema);
 export const persistedStateSchema = zod.object({
   profiles: profilesSchema,
   selectedProfileId: zod.number().optional(),
-  errorAlert: zod.string().optional(),
   badState: zod.unknown().optional(),
 }) satisfies zod.ZodType<PersistedAppState>;

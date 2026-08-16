@@ -35,12 +35,6 @@ export type Profile = {
 export type PersistedAppState = {
   profiles?: Profile[];
   selectedProfileId?: Profile["id"];
-  /**
-   * This will show up in the header bar as an alert.
-   * if `recommendReinstall` is set to true, instruct to download raw storage string,
-   * and re-install the extension.
-   */
-  errorAlert?: string;
   badState?: unknown;
 };
 

@@ -1,23 +1,30 @@
 import { useEffect, useRef } from "react";
-import { useAppStore } from "@/store/useAppStore";
 import type { RuntimeMessage } from "@/types";
-import { isRuntimeMessage } from "@/types";
 
-export const useMessageHandler = () => {
-  const setErrorAlert = useAppStore((state) => state.setErrorAlert);
+type MessageType = RuntimeMessage["type"];
+type MessageOfType<T extends MessageType> = Extract<RuntimeMessage, { type: T }>;
+
+/**
+ * Listens for messages from the background service worker of a certain type.
+ */
+export const useMessageHandler = <T extends MessageType>(type: T): MessageOfType<T> | null => {
+  const [message, setMessage] = useState<MessageOfType<T> | null>(null);
 
   useEffect(() => {
-    const handleOnMessage = (message: unknown) => {
-      if (isRuntimeMessage(message) && "failure" in message) {
-        setErrorAlert(message.failure);
+    const handleMessage = (runtimeMessage: RuntimeMessage) => {
+      if (runtimeMessage.type === type) {
+        setMessage(runtimeMessage as MessageOfType<T>);
       }
     };
 
-    browser.runtime.onMessage.addListener(handleOnMessage);
+    browser.runtime.onMessage.addListener(handleMessage);
+
     return () => {
-      browser.runtime.onMessage.removeListener(handleOnMessage);
+      browser.runtime.onMessage.removeListener(handleMessage);
     };
-  }, [setErrorAlert]);
+  }, [type]);
+
+  return message;
 };
 
 export const useAppInit = () => {

@@ -17,7 +17,7 @@ import {
   updateProfile,
 } from "./profiles";
 import { storageAdapter } from "./storageAdapter";
-import { setErrorAlert, setToastMessage } from "./messaging";
+import { setToastMessage } from "./messaging";
 
 export type StateSetter = (state: Partial<AppState>) => void;
 export type StateGetter = () => AppState;
@@ -32,7 +32,6 @@ type AppState = PersistedAppState & {
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
   setSelectedIntercept: (intercept: Intercept | null) => void;
-  setErrorAlert: (errorAlert: string) => void;
   addProfile: () => void;
   duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
@@ -51,7 +50,6 @@ export const useAppStore = create<AppState>()(
       setSelectedProfile: setSelectedProfile(set),
       setSelectedHeader: setSelectedHeader(set),
       setSelectedIntercept: setSelectedIntercept(set),
-      setErrorAlert: setErrorAlert(set),
       addProfile: addProfile(set, get),
       duplicateProfile: duplicateProfile(set, get),
       updateProfile: updateProfile(set, get),
@@ -72,7 +70,6 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         profiles: state.profiles,
         selectedProfileId: state.selectedProfileId,
-        errorAlert: state.errorAlert,
         badState: state.badState,
       }),
       merge: (persistedState, currentState) => {
@@ -90,18 +87,13 @@ export const useAppStore = create<AppState>()(
             profiles: parsed.profiles,
             selectedProfileId,
             badState: parsed.badState,
-            // Clear out parsing errors since this is now a successful parse.
-            errorAlert:
-              parsed.errorAlert === GlobalErrors.parseHydrate && !parsed.badState
-                ? ""
-                : parsed.errorAlert,
           };
         } catch {
           return {
             ...currentState,
             selectedProfileId: undefined,
             selectedHeaderId: undefined,
-            errorAlert: GlobalErrors.parseHydrate,
+            toastMessage: GlobalErrors.parseHydrate,
             badState: persistedState,
           };
         }
@@ -115,7 +107,7 @@ export const useAppStore = create<AppState>()(
           useAppStore.setState({
             profiles: [],
             hasHydrated: true,
-            errorAlert: GlobalErrors.parseHydrate,
+            toastMessage: GlobalErrors.parseHydrate,
             badState: state,
           });
         }

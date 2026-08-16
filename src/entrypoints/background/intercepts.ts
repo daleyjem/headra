@@ -7,7 +7,6 @@ import { encodeBody, getDomainsArray, matchesDomainPattern, matchesPattern } fro
 
 let currentTabId: number | null = null;
 let currentIntercepts: BackgroundIntercept[] = [];
-let currentError = "";
 
 const getCurrentTab = async () => {
   const tabs = await browser.tabs.query({
@@ -43,8 +42,10 @@ const handleFetchEvent = async (
   );
 
   if (matchingIntercepts.length > 1) {
-    currentError = `Multiple intercepts detected for the same ${stageType}. The first will be used.`;
-    await setFailure(currentError);
+    logger.log("Detected multiple intercepts");
+    await setFailure(
+      `Multiple intercepts detected for the same ${stageType}. The first will be used.`,
+    );
   }
 
   const matchingIntercept = matchingIntercepts?.[0];
@@ -84,8 +85,7 @@ const handleFetchEvent = async (
 };
 
 const handleDetach = async () => {
-  currentError = "The debugger was detached. Disable intercepts or refresh.";
-  await setFailure(currentError);
+  await setFailure("The debugger was detached. Disable intercepts or refresh.");
 };
 
 const attachListeners = () => {
@@ -104,7 +104,7 @@ const detachListeners = () => {
   }
 };
 
-const attachIntercepts = async (tabId: number, intercepts: BackgroundIntercept[]) => {
+const attachIntercepts = async (tabId: number) => {
   // Chromium browsers
   if (!import.meta.env.FIREFOX) {
     logger.log("Attach debugger to", tabId);
@@ -136,12 +136,6 @@ export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
     throw new Error("Profiles with intercepts must specify at least one domain.");
   }
 
-  if (currentError) {
-    const error = new Error(currentError);
-    currentError = "";
-    throw error;
-  }
-
   detachIntercepts();
   detachListeners();
 
@@ -161,6 +155,6 @@ export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
   if (domainIntercepts.length > 0) {
     currentIntercepts = domainIntercepts;
     attachListeners();
-    attachIntercepts(currentTabId, domainIntercepts);
+    attachIntercepts(currentTabId);
   }
 };
