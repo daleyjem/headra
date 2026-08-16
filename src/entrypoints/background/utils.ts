@@ -95,6 +95,15 @@ export const matchesDomainPattern = (pattern: string, url: string): boolean => {
   return currentHostname === pattern;
 };
 
+export const encodeBody = (body: string): string => {
+  const bytes = new TextEncoder().encode(body);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+};
+
 /**
  * Tests whether `url` matches `pattern`.
  * isRegex true  -> pattern is a JS regular expression source string.

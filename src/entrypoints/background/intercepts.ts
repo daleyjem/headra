@@ -3,7 +3,7 @@ import { type BackgroundIntercept } from "@/types";
 import { logger } from "@/util/logger";
 import { DEBUGGER_VERSION } from "@/config/constants";
 import { setFailure } from "./shared";
-import { getDomainsArray, matchesDomainPattern, matchesPattern } from "./utils";
+import { encodeBody, getDomainsArray, matchesDomainPattern, matchesPattern } from "./utils";
 
 let currentTabId: number | null = null;
 let currentIntercepts: BackgroundIntercept[] = [];
@@ -27,39 +27,60 @@ const handleFetchEvent = async (
 ) => {
   if (method !== "Fetch.requestPaused") return;
 
-  const { requestId, responseStatusCode, request } = params as BackgroundFetchParams;
+  const { request, requestId, body, responseStatusCode, responseHeaders } =
+    params as BackgroundFetchParams;
 
-  const isResponseStage = responseStatusCode !== undefined;
+  const stageType: BackgroundIntercept["target"] =
+    responseStatusCode !== undefined ? "response" : "request";
 
   const matchingIntercepts = currentIntercepts.filter(
     (intercept) =>
       request &&
       matchesPattern(intercept.requestPattern, request.url, intercept.requestRegex ?? false) &&
       // If there's not a defined method, except whatever the request method is
-      request.method === (intercept.method ?? request.method),
+      request.method === (intercept.method ?? request.method) &&
+      intercept.target === stageType,
   );
 
-  logger.log(matchingIntercepts, params);
-
-  try {
-    if (isResponseStage) {
-      // await handleResponseStage(source, requestId, params);
-    } else {
-      // await handleRequestStage(source, requestId, params);
-    }
-    await browser.debugger
-      .sendCommand(source, isResponseStage ? "Fetch.continueResponse" : "Fetch.continueRequest", {
-        requestId,
-      })
-      .catch((err) => logger.error("Fallback continue also failed", err));
-  } catch (error) {
-    logger.error("Failed to handle paused request, falling back to continue", error);
-    await browser.debugger
-      .sendCommand(source, isResponseStage ? "Fetch.continueResponse" : "Fetch.continueRequest", {
-        requestId,
-      })
-      .catch((err) => logger.error("Fallback continue also failed", err));
+  if (matchingIntercepts.length > 1) {
+    currentError = `Multiple intercepts detected for the same ${stageType}. The first will be used.`;
+    await setFailure(currentError);
   }
+
+  const matchingIntercept = matchingIntercepts?.[0];
+
+  if (matchingIntercept) {
+    logger.log(`Matching ${stageType} intercept on:`, request?.url);
+
+    try {
+      if (stageType === "request") {
+        await browser.debugger.sendCommand(source, "Fetch.continueRequest", {
+          requestId,
+          postData: encodeBody(matchingIntercept.body),
+        });
+      } else {
+        await browser.debugger.sendCommand(source, "Fetch.fulfillRequest", {
+          requestId,
+          responseCode: matchingIntercept.status ?? responseStatusCode ?? 200,
+          responseHeaders: responseHeaders,
+          body: encodeBody(matchingIntercept.body ?? body ?? ""),
+        });
+      }
+      return;
+    } catch {
+      // We'll take care of this in the non-matching
+      logger.error(`Intercept for ${stageType} failed on:`, request?.url);
+    }
+  }
+
+  // Not matching or failed intercept... let it through
+  await browser.debugger.sendCommand(
+    source,
+    stageType === "response" ? "Fetch.continueResponse" : "Fetch.continueRequest",
+    {
+      requestId,
+    },
+  );
 };
 
 const handleDetach = async () => {

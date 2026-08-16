@@ -60,7 +60,9 @@ export type BackgroundIntercept = Intercept &
 
 export type BackgroundFetchParams = {
   requestId?: number;
-  responseStatusCode: number;
+  responseStatusCode?: number;
+  responseHeaders?: Record<string, string>;
+  body?: string;
   request?: {
     url: string;
     method: RequestMethod;
