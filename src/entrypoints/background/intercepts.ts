@@ -1,7 +1,7 @@
 import type { BackgroundFetchParams } from "@/types";
 import { type BackgroundIntercept } from "@/types";
 import { logger } from "@/util/logger";
-import { DEBUGGER_VERSION, RequestMethods } from "@/config/constants";
+import { DEBUGGER_VERSION } from "@/config/constants";
 import { setFailure } from "./shared";
 import { getDomainsArray, matchesDomainPattern, matchesPattern } from "./utils";
 

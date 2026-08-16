@@ -56,7 +56,9 @@
 }
 
 .title-intercepts {
-  top: 40px;
+  .profile-contents.stacked & {
+    top: 40px;
+  }
 }
 
 .header-items,
@@ -86,13 +88,15 @@
     color: var(--text-color);
 
     .target,
+    .status-method,
     .mod-type {
       opacity: 1;
     }
   }
 
   .target,
-  .mod-type {
+  .mod-type,
+  .status-method {
     opacity: 0.25;
   }
 

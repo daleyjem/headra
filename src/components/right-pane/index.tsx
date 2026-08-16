@@ -1,4 +1,5 @@
 import { useState } from "react";
+import cx from "classnames";
 import { useAppStore } from "@/store/useAppStore";
 import ExperimentalIcon from "@/assets/icons/experimental-icon.svg?react";
 import PlusIcon from "@/assets/icons/plus-icon.svg?react";
@@ -38,7 +39,11 @@ export const RightPane = () => {
   };
 
   return (
-    <div className="profile-contents">
+    <div
+      className={cx("profile-contents", {
+        stacked: (profile?.headers ?? []).length > 0 && (profile?.intercepts ?? []).length > 0,
+      })}
+    >
       {profile && (
         <ProfilePatterns key={profile.id} profile={profile} updateProfile={updateProfile} />
       )}
