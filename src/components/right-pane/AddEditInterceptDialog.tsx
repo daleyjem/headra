@@ -66,8 +66,9 @@ export const AddEditInterceptDialog = (props: Props) => {
     if (type === "checkbox" && "checked" in event.target) {
       newValue = event.target.checked;
     }
-    if (name === "status" && value) {
-      newValue = Number(newValue);
+    if (type === "number" && "valueAsNumber" in event.target) {
+      const numValue = event.target.valueAsNumber;
+      newValue = Number.isNaN(numValue) ? undefined : numValue;
     }
     if (name === "method" && value === "*") {
       newValue = undefined;
