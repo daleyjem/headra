@@ -4,7 +4,6 @@ import type { Header } from "@/types";
 import ReqResIcon from "@/assets/icons/req-res-icon.svg?react";
 import TrashcanIcon from "@/assets/icons/trashcan-icon.svg?react";
 import { AddEditHeaderDialog } from "./AddEditHeaderDialog";
-import { negative } from "zod";
 
 type Props = {
   header: Header;
