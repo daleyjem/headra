@@ -62,9 +62,12 @@ export const AddEditInterceptDialog = (props: Props) => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = event.target;
-    let newValue: string | boolean | undefined = value;
+    let newValue: string | boolean | number | undefined = value;
     if (type === "checkbox" && "checked" in event.target) {
       newValue = event.target.checked;
+    }
+    if (name === "status" && value) {
+      newValue = Number(newValue);
     }
     if (name === "method" && value === "*") {
       newValue = undefined;
@@ -119,7 +122,7 @@ export const AddEditInterceptDialog = (props: Props) => {
           <article>
             <h3>Status Code</h3>
             <input
-              type="text"
+              type="number"
               name="status"
               placeholder="200"
               value={draftIntercept.status}

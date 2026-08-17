@@ -159,6 +159,7 @@ dialog {
  */
 
 input[type="text"],
+input[type="number"],
 textarea,
 select {
   appearance: none;
@@ -178,7 +179,8 @@ select {
   }
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="number"] {
   font-size: 1em;
   color: var(--text-color);
   outline: none;

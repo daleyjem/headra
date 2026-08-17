@@ -25,7 +25,8 @@
     padding: 0.6em 0;
   }
 
-  input[type="text"] {
+  input[type="text"],
+  input[type="number"] {
     flex: 1;
     border: solid 1px var(--border-dim);
 
@@ -256,6 +257,7 @@
   }
 
   input[type="text"],
+  input[type="number"],
   select {
     width: 100%;
   }
