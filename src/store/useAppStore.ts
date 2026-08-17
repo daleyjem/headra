@@ -1,7 +1,7 @@
 import zod from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Header, PersistedAppState } from "@/types";
+import type { Header, Intercept, PersistedAppState } from "@/types";
 import { persistedStateSchema, type Profile } from "@/types";
 import { presets } from "@/config/presets";
 import { GlobalErrors, STORAGE_KEY } from "@/config/constants";
@@ -12,11 +12,12 @@ import {
   removeProfile,
   resetProfiles,
   setSelectedHeader,
+  setSelectedIntercept,
   setSelectedProfile,
   updateProfile,
 } from "./profiles";
 import { storageAdapter } from "./storageAdapter";
-import { setErrorAlert, setToastMessage } from "./messaging";
+import { setToastMessage } from "./messaging";
 
 export type StateSetter = (state: Partial<AppState>) => void;
 export type StateGetter = () => AppState;
@@ -25,11 +26,12 @@ type AppState = PersistedAppState & {
   /** True once storage has been read and the store is ready to use. */
   hasHydrated: boolean;
   selectedHeaderId?: Header["id"];
+  selectedInterceptId?: Intercept["id"];
   toastMessage?: string;
 
   setSelectedProfile: (profile: Profile) => void;
   setSelectedHeader: (header: Header | null) => void;
-  setErrorAlert: (errorAlert: string) => void;
+  setSelectedIntercept: (intercept: Intercept | null) => void;
   addProfile: () => void;
   duplicateProfile: (profileId: number) => void;
   removeProfile: (profileId: number) => void;
@@ -47,7 +49,7 @@ export const useAppStore = create<AppState>()(
 
       setSelectedProfile: setSelectedProfile(set),
       setSelectedHeader: setSelectedHeader(set),
-      setErrorAlert: setErrorAlert(set),
+      setSelectedIntercept: setSelectedIntercept(set),
       addProfile: addProfile(set, get),
       duplicateProfile: duplicateProfile(set, get),
       updateProfile: updateProfile(set, get),
@@ -58,7 +60,7 @@ export const useAppStore = create<AppState>()(
     {
       name: STORAGE_KEY,
       storage: storageAdapter,
-      version: 1,
+      version: 2,
       migrate: (persistedState, version) => {
         if (version < 1) {
           logger.log("[Headra] Migrating persisted state from version", version);
@@ -68,7 +70,6 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         profiles: state.profiles,
         selectedProfileId: state.selectedProfileId,
-        errorAlert: state.errorAlert,
         badState: state.badState,
       }),
       merge: (persistedState, currentState) => {
@@ -86,18 +87,13 @@ export const useAppStore = create<AppState>()(
             profiles: parsed.profiles,
             selectedProfileId,
             badState: parsed.badState,
-            // Clear out parsing errors since this is now a successful parse.
-            errorAlert:
-              parsed.errorAlert === GlobalErrors.parseHydrate && !parsed.badState
-                ? ""
-                : parsed.errorAlert,
           };
         } catch {
           return {
             ...currentState,
             selectedProfileId: undefined,
             selectedHeaderId: undefined,
-            errorAlert: GlobalErrors.parseHydrate,
+            toastMessage: GlobalErrors.parseHydrate,
             badState: persistedState,
           };
         }
@@ -111,7 +107,7 @@ export const useAppStore = create<AppState>()(
           useAppStore.setState({
             profiles: [],
             hasHydrated: true,
-            errorAlert: GlobalErrors.parseHydrate,
+            toastMessage: GlobalErrors.parseHydrate,
             badState: state,
           });
         }

@@ -1,12 +1,13 @@
 import { useState } from "react";
-import type { Header } from "@/types";
+import cx from "classnames";
 import { useAppStore } from "@/store/useAppStore";
+import ExperimentalIcon from "@/assets/icons/experimental-icon.svg?react";
 import PlusIcon from "@/assets/icons/plus-icon.svg?react";
-import { HeaderItem } from "./HeaderItem";
 import { ProfilePatterns } from "./ProfilePatterns";
+import { Headers } from "./Headers";
+import { Intercepts } from "./Intercepts";
 import { ButtonsContainer } from "../global/ButtonsContainer";
 import { NoItems } from "../global/NoItems";
-import { AddEditHeaderDialog } from "./AddEditHeaderDialog";
 import "./styles.css";
 
 export const RightPane = () => {
@@ -15,65 +16,55 @@ export const RightPane = () => {
   const selectedProfileId = useAppStore((state) => state.selectedProfileId);
 
   const [isAddingHeader, setIsAddingHeader] = useState(false);
+  const [isAddingIntercept, setIsAddingIntercept] = useState(false);
 
   const profile = (profiles ?? []).find((p) => p.id === selectedProfileId) ?? null;
   const headers = profile?.headers ?? [];
-
-  const onHeaderItemChange = (changedHeader: Header) => {
-    if (profile) {
-      updateProfile({
-        ...profile,
-        headers: headers.map((header) => (header.id === changedHeader.id ? changedHeader : header)),
-      });
-    }
-  };
-
-  const onHeaderItemRemove = (removedHeader: Header) => {
-    if (profile) {
-      updateProfile({
-        ...profile,
-        headers: headers.filter((header) => header.id !== removedHeader.id),
-      });
-    }
-  };
-
-  const onHeaderItemAdd = (newHeader: Header) => {
-    setIsAddingHeader(false);
-    if (profile) {
-      let newId = 0;
-      // Get the greatest existing header ID and increment it for the new header
-      if (headers.length > 0) {
-        newId = Math.max(...headers.map((header) => header.id)) + 1;
-      }
-      updateProfile({
-        ...profile,
-        headers: [...headers, { ...newHeader, id: newId }],
-      });
-    }
-  };
+  const intercepts = profile?.intercepts ?? [];
 
   const onAddHeaderClick = () => {
     setIsAddingHeader(true);
   };
 
-  const onAddHeaderDialogCancel = () => {
-    setIsAddingHeader(false);
+  const onAddInterceptClick = () => {
+    setIsAddingIntercept(true);
+  };
+
+  const onHeaderDialogUpdate = (isAdding: boolean) => {
+    setIsAddingHeader(isAdding);
+  };
+
+  const onInterceptDialogUpdate = (isAdding: boolean) => {
+    setIsAddingIntercept(isAdding);
   };
 
   return (
-    <div className="headers">
+    <div
+      className={cx("profile-contents", {
+        stacked: (profile?.headers ?? []).length > 0 && (profile?.intercepts ?? []).length > 0,
+      })}
+    >
       {profile && (
         <ProfilePatterns key={profile.id} profile={profile} updateProfile={updateProfile} />
       )}
-      <h2>Headers</h2>
       <div className="scrollable">
-        {headers.length === 0 ? (
+        <Headers
+          profile={profile}
+          isAdding={isAddingHeader}
+          onDialogUpdate={onHeaderDialogUpdate}
+        />
+        <Intercepts
+          profile={profile}
+          isAdding={isAddingIntercept}
+          onDialogUpdate={onInterceptDialogUpdate}
+        />
+        {headers.length === 0 && intercepts.length === 0 && (
           <NoItems>
             {selectedProfileId !== undefined ? (
               <>
-                Click the "Add Header +" button below
+                Click the "Add +" buttons below
                 <br />
-                to add headers for this profile.
+                to add headers and intercepts for this profile.
               </>
             ) : (
               <>
@@ -89,22 +80,20 @@ export const RightPane = () => {
               </>
             )}
           </NoItems>
-        ) : (
-          <div className="header-items">
-            {headers.map((header, index) => (
-              <HeaderItem
-                onItemChange={onHeaderItemChange}
-                onItemRemove={onHeaderItemRemove}
-                onItemDuplicated={onHeaderItemAdd}
-                key={index}
-                header={header}
-              />
-            ))}
-          </div>
         )}
       </div>
       <ButtonsContainer
         buttons={[
+          ...(!import.meta.env.FIREFOX
+            ? [
+                {
+                  label: "Add Intercept",
+                  onClick: onAddInterceptClick,
+                  icon: ExperimentalIcon,
+                  disabled: selectedProfileId === undefined,
+                },
+              ]
+            : []),
           {
             label: "Add Header",
             onClick: onAddHeaderClick,
@@ -112,20 +101,6 @@ export const RightPane = () => {
             disabled: selectedProfileId === undefined,
           },
         ]}
-      />
-      <AddEditHeaderDialog
-        open={isAddingHeader}
-        dialogType="add"
-        onCancel={onAddHeaderDialogCancel}
-        onSave={onHeaderItemAdd}
-        header={{
-          enabled: true,
-          id: -1,
-          modType: "set",
-          target: "request",
-          name: "",
-          value: "",
-        }}
       />
     </div>
   );

@@ -62,7 +62,14 @@ export const HeaderItem = (props: Props) => {
       <span className="target" title={`${target} header`}>
         <ReqResIcon className={target} />
       </span>
-      <span title={`${modType} header`} className={`mod-type ${modType}`}></span>
+      <span
+        title={`${modType} header`}
+        className={cx("mod-type", {
+          positive: modType === "set",
+          alt: modType === "append",
+          negative: modType === "remove",
+        })}
+      ></span>
       <span className="header-name">{name}</span>
       <span className="header-value">{value}</span>
       <input type="checkbox" onClick={onCheckboxClick} onChange={onToggle} checked={enabled} />

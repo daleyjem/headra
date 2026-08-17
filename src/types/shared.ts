@@ -1,3 +1,7 @@
+import type { RequestMethods } from "@/config/constants";
+
+export type RequestMethod = (typeof RequestMethods)[keyof typeof RequestMethods];
+
 export type Header = {
   id: number;
   target: "response" | "request";
@@ -7,11 +11,22 @@ export type Header = {
   enabled: boolean;
 };
 
+export type Intercept = {
+  id: number;
+  title: string;
+  body: string;
+  enabled: boolean;
+  status?: number;
+  method?: RequestMethod;
+  target: "request" | "response";
+};
+
 export type Profile = {
   id: number;
   name: string;
   enabled: boolean;
   headers: Header[];
+  intercepts?: Intercept[];
   domains?: string;
   requestPattern: string;
   requestRegex?: boolean;
@@ -20,12 +35,6 @@ export type Profile = {
 export type PersistedAppState = {
   profiles?: Profile[];
   selectedProfileId?: Profile["id"];
-  /**
-   * This will show up in the header bar as an alert.
-   * if `recommendReinstall` is set to true, instruct to download raw storage string,
-   * and re-install the extension.
-   */
-  errorAlert?: string;
   badState?: unknown;
 };
 
@@ -39,3 +48,18 @@ export type RuntimeMessage =
       type: "setError";
       failure: string;
     };
+
+export type BackgroundIntercept = Intercept &
+  Pick<Profile, "domains" | "requestPattern" | "requestRegex">;
+
+export type BackgroundFetchParams = {
+  requestId?: number;
+  responseStatusCode?: number;
+  responseHeaders?: Record<string, string>;
+  body?: string;
+  request?: {
+    url: string;
+    method: RequestMethod;
+    postData: string;
+  };
+};
