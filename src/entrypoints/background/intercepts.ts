@@ -133,7 +133,9 @@ const detachIntercepts = async () => {
 export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
   // Specify that a domain must be attached if none are
   if (intercepts.find((intercept) => !intercept.domains)) {
-    throw new Error("Profiles with intercepts must specify at least one domain.");
+    throw new Error(
+      "For your security, profiles with intercepts must specify at least one domain.",
+    );
   }
 
   if (import.meta.env.FIREFOX && intercepts.length > 0) {

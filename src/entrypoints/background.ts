@@ -5,6 +5,8 @@ import { logger } from "@/util/logger";
 import { presets } from "@/config/presets";
 import { debouncedSyncAllRules, sendFailure, syncRules } from "./background/shared";
 
+let currHostname = "";
+
 export default defineBackground(() => {
   browser.runtime.onInstalled.addListener(async () => {
     logger.log("Extension installed");
@@ -29,16 +31,24 @@ export default defineBackground(() => {
   });
 
   // Resync intercepts only on page load/reload,
-  // and not already debuggin.
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === "loading") {
-      logger.log("Tab loading:", tabId);
+  // and not already debugging.
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+    if (changeInfo.status === "loading" && changeInfo.url) {
+      logger.log("Tab loading:", tabId, changeInfo.url);
       const targets = await browser.debugger.getTargets();
-      if (!targets.some((target) => target.tabId === tabId && target.attached)) {
+      const changedHostname = new URL(changeInfo.url).hostname;
+
+      // If changing domains, or debugger not already attached,
+      // sync rules to check for intercepts debugging qualification.
+      if (
+        changedHostname !== currHostname ||
+        !targets.some((target) => target.tabId === tabId && target.attached)
+      ) {
+        currHostname = changedHostname;
         // Sync only the intercepts
         await syncRules(false, true);
       } else {
-        logger.log("Debugger already attached");
+        logger.log("Debugger already attached to same hostname");
       }
     }
   });
