@@ -1,8 +1,8 @@
 {
   "name": "Headra",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Modify HTTP request and response headers.",
+  "description": "Modify HTTP request and response headers. Add HTTP request and response intercepts.",
   "type": "module",
   "scripts": {
     "dev": "wxt",

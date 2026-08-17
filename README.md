@@ -1,13 +1,16 @@
 # Headra
 
-Cross-browser request and response header modification extension/add-on.
+Cross-browser request and response modification extension/add-on.
+
+- Set, append, or remove HTTP request/response headers.
+- Add, or modify request/response body, and status (in supported browsers).
 
 <img src="./public/screenshot.png" width="800" />
 
 ## Marketplaces
 
 - [Google Chrome](https://chromewebstore.google.com/detail/headra/kkpnknfbjbfjdoghgjajogdmejjdlofo)
-- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/headra/)
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/headra/) (Currently doesn't support "Intercepts")
 - [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/headra/ccfeoagdjmlbkjhnhbfpcjnoepkackbh)
 - **Opera**: _Currently awaiting approval..._
 - **Safari**: _Not yet available_
