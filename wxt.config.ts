@@ -14,7 +14,7 @@ export default defineConfig({
     permissions: [
       "storage",
       "declarativeNetRequest",
-      ...(browser !== "firefox" ? ["activeTab", "debugger"] : ["webRequest"]),
+      ...(browser !== "firefox" ? ["activeTab", "debugger"] : []),
     ],
     host_permissions: ["<all_urls>"],
     browser_specific_settings: {

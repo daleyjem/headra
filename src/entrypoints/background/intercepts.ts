@@ -136,6 +136,10 @@ export const syncIntercepts = async (intercepts: BackgroundIntercept[]) => {
     throw new Error("Profiles with intercepts must specify at least one domain.");
   }
 
+  if (import.meta.env.FIREFOX && intercepts.length > 0) {
+    throw new Error("Intercepts are not currently supported for Firefox.");
+  }
+
   detachIntercepts();
   detachListeners();
 

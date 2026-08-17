@@ -84,12 +84,16 @@ export const RightPane = () => {
       </div>
       <ButtonsContainer
         buttons={[
-          {
-            label: "Add Intercept",
-            onClick: onAddInterceptClick,
-            icon: ExperimentalIcon,
-            disabled: selectedProfileId === undefined,
-          },
+          ...(!import.meta.env.FIREFOX
+            ? [
+                {
+                  label: "Add Intercept",
+                  onClick: onAddInterceptClick,
+                  icon: ExperimentalIcon,
+                  disabled: selectedProfileId === undefined,
+                },
+              ]
+            : []),
           {
             label: "Add Header",
             onClick: onAddHeaderClick,
