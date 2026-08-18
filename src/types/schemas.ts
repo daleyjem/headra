@@ -1,5 +1,5 @@
 import zod from "zod";
-import type { Header, Intercept, PersistedAppState, Profile } from "./shared";
+import type { Header, PersistedAppState, Profile } from "./shared";
 import { RequestMethods } from "@/config/constants";
 
 export const headerSchema: zod.ZodType<Header> = zod.object({
