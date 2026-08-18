@@ -5,7 +5,7 @@ Cross-browser request and response modification extension/add-on.
 - Set, append, or remove HTTP request/response headers.
 - Add, or modify request/response body, and status (in supported browsers).
 
-<img src="./public/screenshot.png" width="800" />
+<img src="./design/screenshot.png" width="800" />
 
 ## Marketplaces
 
