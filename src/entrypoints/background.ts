@@ -33,10 +33,10 @@ export default defineBackground(() => {
   // Resync intercepts only on page load/reload,
   // and not already debugging.
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-    if (changeInfo.status === "loading" && changeInfo.url) {
+    if (changeInfo.status === "loading") {
       logger.log("Tab loading:", tabId, changeInfo.url);
       const targets = await browser.debugger.getTargets();
-      const changedHostname = new URL(changeInfo.url).hostname;
+      const changedHostname = changeInfo.url ? new URL(changeInfo.url).hostname : currHostname;
 
       // If changing domains, or debugger not already attached,
       // sync rules to check for intercepts debugging qualification.
