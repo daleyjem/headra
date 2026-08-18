@@ -16,7 +16,6 @@
     "lint": "oxlint",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
-    "compile": "tsc --noEmit",
     "postinstall": "wxt prepare",
     "types": "tsc --noEmit"
   },
