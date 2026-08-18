@@ -1,6 +1,6 @@
 {
   "name": "Headra",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "private": true,
   "description": "Modify HTTP request and response headers. Add HTTP request and response intercepts.",
   "type": "module",
