@@ -7,7 +7,12 @@ const errors = new Map<ErrorType, string[]>([
   ],
   [
     "emptyValue",
-    [`Request pattern cannot have an empty value.`, `urlFilter should not be an empty string`],
+    [
+      `Request pattern cannot have an empty value.`,
+      `urlFilter should not be an empty string`,
+      `cannot have an empty value for urlFilter key`,
+      `cannot have an empty value for regexFilter key`,
+    ],
   ],
   ["noMultiple", [`Only standard HTTP request headers that can specify multiple values`]],
 ]);
