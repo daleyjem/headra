@@ -29,4 +29,7 @@ export default defineConfig({
   webExt: {
     disabled: process.env.NO_BROWSER === "true",
   },
+  zip: {
+    excludeSources: ["design/**"],
+  },
 });
