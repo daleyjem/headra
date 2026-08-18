@@ -12,20 +12,19 @@ Cross-browser request and response modification extension/add-on.
 - [Google Chrome](https://chromewebstore.google.com/detail/headra/kkpnknfbjbfjdoghgjajogdmejjdlofo)
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/headra/) (Currently doesn't support "Intercepts")
 - [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/headra/ccfeoagdjmlbkjhnhbfpcjnoepkackbh)
-- **Opera**: _Currently awaiting approval..._
 - **Safari**: _Not yet available_
 
 ## Building from Source
 
 - `npm i`
-- `npm run build` (for Chrome, Safari, Edge, Opera)
+- `npm run build` (for Chrome, Safari, Edge)
 - `npm run zip:firefox` (for Firefox)
 
 ## Loading Built Extension
 
 **Note:** You'll need to follow the instructions in **Building from Source** first.
 
-### Chrome, Edge, Opera
+### Chrome and Edge
 
 - Navigate to `about://extensions` in the address bar.
 - Turn on **Developer Mode**.
